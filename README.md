@@ -1,4 +1,4 @@
-This is the full Agda development which accompanies the paper submission
+This is the full Agda development which accompanies
 "Mechanically Verified Calculational Abstract Interpretation".
 
 - Prelude.agda, Relations.agda, and Classes.agda set up a basic standard library
