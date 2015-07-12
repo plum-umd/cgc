@@ -1,0 +1,87 @@
+% \documentclass{article}
+% % Set operations illustrated with Venn diagrams
+% % Author: Uwe Ziegenhagen
+% % This is an expanded version of an example provided by T. Tantau
+% 
+% \usepackage{tikz}
+% 
+% \usepackage{pgfplots}
+% 
+% \newenvironment{customlegend}[1][]{%
+%     \begingroup
+%     % inits/clears the lists (which might be populated from previous
+%     % axes):
+%     \csname pgfplots@init@cleared@structures\endcsname
+%     \pgfplotsset{#1}%
+% }{%
+%     % draws the legend:
+%     \csname pgfplots@createlegend\endcsname
+%     \endgroup
+% }%
+% 
+% \def\addlegendimage{\csname pgfplots@addlegendimage\endcsname}
+% 
+% \begin{document}
+
+
+
+% Definition of circles
+\def\firstcircle{(0,-.35) circle (1.2)}
+\def\secondcircle{(0,0) circle (0.75)}
+\def\thirdcircle{(2.5,0) circle (0.75)}
+\def\fourthcircle{(5,0) circle (0.75)}
+
+\colorlet{circle edge}{blue!50}
+\colorlet{circle area}{blue!20}
+
+\tikzset{filled/.style={fill=circle area, draw=circle edge, thick},
+        outline/.style={draw=circle edge, thick}}
+
+\setlength{\parskip}{5mm}
+
+
+% Set A and B
+\begin{tikzpicture}[scale=1.04]
+    \begin{scope}
+      \clip \firstcircle;
+    \end{scope}
+    \draw[outline] \firstcircle  node {};
+    \node[anchor=center] at (0,-1.1) {{\scriptsize Classical}};
+    \begin{scope}
+      \clip \secondcircle;
+    \end{scope}
+    \draw[outline] \secondcircle node {};
+    \node[anchor=center] at (0,0) {{\scriptsize Computational}};
+    \node at (0.60,0.20) {} edge[->,thick] ( 1.78,0.20);
+    \node at ( 1.88,-0.2) {} edge[->,thick] (0.70,-0.2);
+    \begin{scope}
+      \clip \thirdcircle;
+    \end{scope}
+    \draw[outline] \thirdcircle node {};
+    \node[anchor=center] at (2.5,0) {{\scriptsize Kleisli}};
+    \node at (3.10,0.20) {} edge[->,thick,dotted] (4.28,0.20);
+-   \node at (4.38,-0.2) {} edge[->,thick]        (3.20,-0.2);
+    \begin{scope}
+      \clip \fourthcircle;
+    \end{scope}
+    \draw[outline] \fourthcircle node {};
+    \node[anchor=center] at (5,0) {{\scriptsize Constructive}};
+
+\begin{customlegend}[
+legend style={align=left,at={(5.7,-.9)},font=\scriptsize},
+legend entries={ % <= in the following there are the entries
+Set inclusion\ \ \ \ ,
+Axiom of choice,
+}
+] % <= to define position and font legend
+% the following are the "images" and numbers in the legend
+    \addlegendimage{-stealth,black}
+    \addlegendimage{-stealth,dotted}
+    % \addlegendimage{mark=ball,ball color=green,draw=white}
+    % \addlegendimage{number in legend=1,blue}
+    % \addlegendimage{number in legend=0,red}
+    % \addlegendimage{area legend,orange,fill=orange!20}
+\end{customlegend}
+\end{tikzpicture}
+
+% \end{document}
