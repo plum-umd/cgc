@@ -1,5 +1,5 @@
 This is the full Agda development which accompanies
-"Mechanically Verified Calculational Abstract Interpretation".
+"Mechanically Verified Calculational Abstract Interpretation" (http://arxiv.org/abs/1507.03559).
 
 - Prelude.agda, Relations.agda, and Classes.agda set up a basic standard library
 - Data/*.agda develops theorems about standard datatypes
