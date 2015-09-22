@@ -1,12 +1,12 @@
-module OSet.Promote where
+module POSet.Promote where
 
 open import Prelude
-open import OSet.OSet
-open import OSet.Fun
-open import OSet.Power
-open import OSet.Product
-open import OSet.ProofMode
-open import OSet.Lib
+open import POSet.POSet
+open import POSet.Fun
+open import POSet.Power
+open import POSet.Product
+open import POSet.ProofMode
+open import POSet.Lib
 
 data promote {𝓁} 𝓁' (A : POSet 𝓁) : Set (𝓁 ⊔ˡ 𝓁') where
   ↑⟨_⟩ : ⟪ A ⟫ → promote 𝓁' A
@@ -59,5 +59,5 @@ instance
 η[promote] : ∀ {𝓁 𝓁'} {A : POSet 𝓁} {x} → ↑up {𝓁' = 𝓁'} {A} ⋅ (↑down {𝓁' = 𝓁'} {A} ⋅ x) ≡ x
 η[promote] {x = ↑⟨ ↑⟨ x ⟩ ⟩} = ↯
 
-η[promote]⸢⊙⸣ : ∀ {𝓁 𝓁'} {A : POSet 𝓁} → ↑up {𝓁' = 𝓁'} {A} ⊙ ↑down {𝓁' = 𝓁'} {A} ≈ ↑id
-η[promote]⸢⊙⸣ = ext[λ]⸢≈⸣ $ xRx[≡] η[promote]
+η[promote]⸢⊙⸣ : ∀ {𝓁 𝓁'} {A : POSet 𝓁} → ↑up {𝓁' = 𝓁'} {A} ⊙ ↑down {𝓁' = 𝓁'} {A} ≈ id⁺
+η[promote]⸢⊙⸣ = ext[⇒]⸢≈⸣ $ xRx[≡] η[promote]

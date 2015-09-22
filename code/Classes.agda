@@ -104,42 +104,42 @@ record PreOrder {𝓁} 𝓁' (A : Set 𝓁) : Set (𝓁 ⊔ˡ sucˡ 𝓁') where
   _⌾⸢⊴⸣_ = _⌾_ {{Transitive[⊴]}}
 open PreOrder {{...}} public
 
-record Equivalence {𝓁} 𝓁' (A : Set 𝓁) : Set (𝓁 ⊔ˡ sucˡ 𝓁') where
-  infix 8 _≈_
-  infix 9 _⌾⸢≈⸣_
-  field
-    _≈_ : relation 𝓁' A
-    {{Reflexive[≈]}} : Reflexive _≈_
-    {{Symmetric[≈]}} : Symmetric _≈_
-    {{Transitive[≈]}} : Transitive _≈_
-  xRx⸢≈⸣ : reflexive _≈_
-  xRx⸢≈⸣ = xRx {{Reflexive[≈]}}
-  ◇⸢≈⸣ : symmetric _≈_
-  ◇⸢≈⸣ = ◇ {{Symmetric[≈]}}
-  _⌾⸢≈⸣_ : transitive _≈_
-  _⌾⸢≈⸣_ = _⌾_ {{Transitive[≈]}}
-open Equivalence {{...}} public
-
-record PartialOrder {𝓁 𝓁'} 𝓁'' (A : Set 𝓁) (_~_ : relation 𝓁' A) {{Refl : Reflexive _~_}} : Set (𝓁 ⊔ˡ 𝓁' ⊔ˡ sucˡ 𝓁'') where
-  infix 8 _⊑_
-  infix 8 _⊒_
-  infix 9 _⌾⸢⊑⸣_
-  field
-    _⊑_ : relation 𝓁'' A
-    {{Reflexive[][⊑]}} : Reflexive[ _~_ ] _⊑_
-    {{Transitive[⊑]}} : Transitive _⊑_
-    {{Antisymmetric[][⊑]}} : Antisymmetric[ _~_ ] _⊑_
-  _⊒_ : relation 𝓁'' A
-  _⊒_ = flip _⊑_
-  xRx[]⸢⊑⸣ : reflexive[ _~_ ] _⊑_
-  xRx[]⸢⊑⸣ = xRx[] {{Reflexive[][⊑]}}
-  xRx⸢⊑⸣ : reflexive _⊑_
-  xRx⸢⊑⸣ = xRx[]⸢⊑⸣ xRx
-  ⋈[]⸢⊑⸣ : antisymmetric[ _~_ ] _⊑_
-  ⋈[]⸢⊑⸣ = ⋈[] {{Antisymmetric[][⊑]}}
-  _⌾⸢⊑⸣_ : transitive _⊑_
-  _⌾⸢⊑⸣_ = _⌾_ {{Transitive[⊑]}}
-open PartialOrder {{...}} public  
+-- record Equivalence {𝓁} 𝓁' (A : Set 𝓁) : Set (𝓁 ⊔ˡ sucˡ 𝓁') where
+--   infix 8 _≈_
+--   infix 9 _⌾⸢≈⸣_
+--   field
+--     _≈_ : relation 𝓁' A
+--     {{Reflexive[≈]}} : Reflexive _≈_
+--     {{Symmetric[≈]}} : Symmetric _≈_
+--     {{Transitive[≈]}} : Transitive _≈_
+--   xRx⸢≈⸣ : reflexive _≈_
+--   xRx⸢≈⸣ = xRx {{Reflexive[≈]}}
+--   ◇⸢≈⸣ : symmetric _≈_
+--   ◇⸢≈⸣ = ◇ {{Symmetric[≈]}}
+--   _⌾⸢≈⸣_ : transitive _≈_
+--   _⌾⸢≈⸣_ = _⌾_ {{Transitive[≈]}}
+-- open Equivalence {{...}} public
+-- 
+-- record PartialOrder {𝓁 𝓁'} 𝓁'' (A : Set 𝓁) (_~_ : relation 𝓁' A) {{Refl : Reflexive _~_}} : Set (𝓁 ⊔ˡ 𝓁' ⊔ˡ sucˡ 𝓁'') where
+--   infix 8 _⊑_
+--   infix 8 _⊒_
+--   infix 9 _⌾⸢⊑⸣_
+--   field
+--     _⊑_ : relation 𝓁'' A
+--     {{Reflexive[][⊑]}} : Reflexive[ _~_ ] _⊑_
+--     {{Transitive[⊑]}} : Transitive _⊑_
+--     {{Antisymmetric[][⊑]}} : Antisymmetric[ _~_ ] _⊑_
+--   _⊒_ : relation 𝓁'' A
+--   _⊒_ = flip _⊑_
+--   xRx[]⸢⊑⸣ : reflexive[ _~_ ] _⊑_
+--   xRx[]⸢⊑⸣ = xRx[] {{Reflexive[][⊑]}}
+--   xRx⸢⊑⸣ : reflexive _⊑_
+--   xRx⸢⊑⸣ = xRx[]⸢⊑⸣ xRx
+--   ⋈[]⸢⊑⸣ : antisymmetric[ _~_ ] _⊑_
+--   ⋈[]⸢⊑⸣ = ⋈[] {{Antisymmetric[][⊑]}}
+--   _⌾⸢⊑⸣_ : transitive _⊑_
+--   _⌾⸢⊑⸣_ = _⌾_ {{Transitive[⊑]}}
+-- open PartialOrder {{...}} public  
 
 record TotalOrder {𝓁 𝓁'} 𝓁'' (A : Set 𝓁) (_~_ : relation 𝓁' A) : Set (𝓁 ⊔ˡ 𝓁' ⊔ˡ sucˡ 𝓁'') where
   infix 8 _≤_
@@ -186,30 +186,30 @@ instance
 ≡-PreOrder : ∀ {𝓁} {A : Set 𝓁} → PreOrder 𝓁 A
 ≡-PreOrder = record { _⊴_ = _≡_ }
 
-record _⊴⊵_ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} (x y : A) : Set 𝓁' where
-  constructor mk[⊴⊵]
-  field
-    xRy : x ⊴ y
-    yRx : y ⊴ x
-
-instance
-  Reflexive[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Reflexive _⊴⊵_
-  Reflexive[⊴⊵] = record { xRx = record { xRy = xRx⸢⊴⸣ ; yRx = xRx⸢⊴⸣ } }
-  Symmetric[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Symmetric _⊴⊵_
-  Symmetric[⊴⊵] = record { ◇ = λ { (mk[⊴⊵] xRy yRx) → mk[⊴⊵] yRx xRy }}
-  Transitive[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Transitive _⊴⊵_
-  Transitive[⊴⊵] = record { _⌾_ = λ { (mk[⊴⊵] yRz zRy) (mk[⊴⊵] xRy yRx) → mk[⊴⊵] (yRz ⌾⸢⊴⸣ xRy) (yRx ⌾⸢⊴⸣ zRy) }}
-  Reflexive[⊴⊵][⊴] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Reflexive[ _⊴⊵_ ] _⊴_
-  Reflexive[⊴⊵][⊴] = record { xRx[] = _⊴⊵_.xRy }
-  Antisymmetric[⊴⊵][⊴] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Antisymmetric[ _⊴⊵_ ] _⊴_
-  Antisymmetric[⊴⊵][⊴] = record { ⋈[] = mk[⊴⊵] }
-
-⊴⊵-Equivalence : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Equivalence 𝓁' A
-⊴⊵-Equivalence = record { _≈_ = _⊴⊵_ }
-⊴⊵-PartialOrder : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → PartialOrder 𝓁' A _⊴⊵_
-⊴⊵-PartialOrder {{PO}} = record
-  { _⊑_ = _⊴_
-  ; Reflexive[][⊑] = Reflexive[⊴⊵][⊴]
-  ; Transitive[⊑] = Transitive[⊴]
-  ; Antisymmetric[][⊑] = Antisymmetric[⊴⊵][⊴]
-  }
+-- record _⊴⊵_ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} (x y : A) : Set 𝓁' where
+--   constructor mk[⊴⊵]
+--   field
+--     xRy : x ⊴ y
+--     yRx : y ⊴ x
+-- 
+-- instance
+--   Reflexive[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Reflexive _⊴⊵_
+--   Reflexive[⊴⊵] = record { xRx = record { xRy = xRx⸢⊴⸣ ; yRx = xRx⸢⊴⸣ } }
+--   Symmetric[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Symmetric _⊴⊵_
+--   Symmetric[⊴⊵] = record { ◇ = λ { (mk[⊴⊵] xRy yRx) → mk[⊴⊵] yRx xRy }}
+--   Transitive[⊴⊵] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Transitive _⊴⊵_
+--   Transitive[⊴⊵] = record { _⌾_ = λ { (mk[⊴⊵] yRz zRy) (mk[⊴⊵] xRy yRx) → mk[⊴⊵] (yRz ⌾⸢⊴⸣ xRy) (yRx ⌾⸢⊴⸣ zRy) }}
+--   Reflexive[⊴⊵][⊴] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Reflexive[ _⊴⊵_ ] _⊴_
+--   Reflexive[⊴⊵][⊴] = record { xRx[] = _⊴⊵_.xRy }
+--   Antisymmetric[⊴⊵][⊴] : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Antisymmetric[ _⊴⊵_ ] _⊴_
+--   Antisymmetric[⊴⊵][⊴] = record { ⋈[] = mk[⊴⊵] }
+-- 
+-- ⊴⊵-Equivalence : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → Equivalence 𝓁' A
+-- ⊴⊵-Equivalence = record { _≈_ = _⊴⊵_ }
+-- ⊴⊵-PartialOrder : ∀ {𝓁 𝓁'} {A : Set 𝓁} {{Pre : PreOrder 𝓁' A}} → PartialOrder 𝓁' A _⊴⊵_
+-- ⊴⊵-PartialOrder {{PO}} = record
+--   { _⊑_ = _⊴_
+--   ; Reflexive[][⊑] = Reflexive[⊴⊵][⊴]
+--   ; Transitive[⊑] = Transitive[⊴]
+--   ; Antisymmetric[][⊑] = Antisymmetric[⊴⊵][⊴]
+--   }

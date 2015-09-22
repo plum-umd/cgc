@@ -55,11 +55,11 @@ dec-total-order : ∀ {𝓁 𝓁' 𝓁''} {A : Set 𝓁} (_~_ : relation 𝓁' A
 dec-total-order _~_ _R_ = ∀ x y → ordering _~_ _R_ x y
 
 data rel-decision {𝓁 𝓁'} {A : Set 𝓁} (_R_ : relation 𝓁' A) (x y : A) : Set 𝓁' where
-  yes : x R y → rel-decision _R_ x y
-  no : not (x R y) → rel-decision _R_ x y
+  Yes : x R y → rel-decision _R_ x y
+  No : not (x R y) → rel-decision _R_ x y
 
 data is-yes {𝓁 𝓁'} {A : Set 𝓁} {_R_ : relation 𝓁' A} {x y : A} : rel-decision _R_ x y → Set 𝓁' where
-  yep : ∀ {p : x R y} → is-yes (yes p)
+  Yep : ∀ {p : x R y} → is-yes (Yes p)
 
 rel-dec : ∀ {𝓁 𝓁'} {A : Set 𝓁} (_R_ : relation 𝓁' A) → Set (𝓁 ⊔ˡ 𝓁')
 rel-dec _R_ = ∀ x y → rel-decision _R_ x y

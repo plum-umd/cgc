@@ -110,7 +110,7 @@ record ℤ⁺ : Set zeroˡ where
     n≠0 : n ≢ Zero
    
 mk⸢ℤ⁺↯⸣ : ∀ n → (d : rel-decision _≢_ n Zero) {{IY : is-yes d}} → ℤ⁺
-mk⸢ℤ⁺↯⸣ n (yes d) {{yep}} = mk-ℤ⁺ n d
+mk⸢ℤ⁺↯⸣ n (Yes d) {{Yep}} = mk-ℤ⁺ n d
 
 infix 6 _/%⸢ℤ⸣_
 _/%⸢ℤ⸣_ : ℤ → ℤ⁺ → ℤ × ℤ

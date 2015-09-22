@@ -84,9 +84,9 @@ instance
 
 dec⸢≤⸢ℕ⸣⸣ : rel-dec _≤⸢ℕ⸣_
 dec⸢≤⸢ℕ⸣⸣ x y with x ⋚⸢ℕ⸣ y
-... | [<] x≤y _ = yes x≤y
-... | [~] x≡y = yes (xRx[≡]⸢≤⸢ℕ⸣⸣ x≡y)
-... | [>] _ not[x≥y] = no not[x≥y]
+... | [<] x≤y _ = Yes x≤y
+... | [~] x≡y = Yes (xRx[≡]⸢≤⸢ℕ⸣⸣ x≡y)
+... | [>] _ not[x≥y] = No not[x≥y]
 
 instance
   RelDec⸢≤⸢ℕ⸣⸣ : RelDec _≤⸢ℕ⸣_
@@ -94,9 +94,9 @@ instance
 
 dec⸢<⸢ℕ⸣⸣ : rel-dec (_<_ {A = ℕ})
 dec⸢<⸢ℕ⸣⸣ x y with x ⋚⸢ℕ⸣ y
-... | [<] x≤y not[y≤x] = yes (x≤y , not[y≤x])
-... | [~] x≡y = no (λ x<y → π₂ x<y (xRx[≡] (◇ x≡y)))
-... | [>] x≥y not[y≤x] = no (λ x<y → π₂ x<y x≥y)
+... | [<] x≤y not[y≤x] = Yes (x≤y , not[y≤x])
+... | [~] x≡y = No (λ x<y → π₂ x<y (xRx[≡] (◇ x≡y)))
+... | [>] x≥y not[y≤x] = No (λ x<y → π₂ x<y x≥y)
 
 instance
   RelDec⸢<⸢ℕ⸣⸣ : RelDec (_<_ {A = ℕ})
@@ -113,7 +113,7 @@ record ℕ≤[_] (x : ℕ) : Set where
     n<x : n ≤ x
 
 mk⸢ℕ≤↯⸣ : ∀ {x} n → (d : rel-decision _≤_ n x) → {{IY : is-yes d}} → ℕ≤[ x ]
-mk⸢ℕ≤↯⸣ n (yes d) {{yep}} = mk-ℕ≤ n d
+mk⸢ℕ≤↯⸣ n (Yes d) {{Yep}} = mk-ℕ≤ n d
 
 infix 5 _-⸢ℕ⸣_
 _-⸢ℕ⸣_ : ∀ (x : ℕ) → ℕ≤[ x ] → ℕ
@@ -128,7 +128,7 @@ record ℕ⁺ : Set where
     n>0 : n > 0
 
 mk⸢ℕ⁺↯⸣ : ∀ n → (d : rel-decision _<_ 0 n) {{IY : is-yes d}} → ℕ⁺
-mk⸢ℕ⁺↯⸣ n (yes d) {{yep}} = mk-ℕ⁺ n d
+mk⸢ℕ⁺↯⸣ n (Yes d) {{Yep}} = mk-ℕ⁺ n d
 
 infix 6 _/%⸢ℕ⸣_
 _/%⸢ℕ⸣_ : ℕ → ℕ⁺ → ℕ × ℕ
