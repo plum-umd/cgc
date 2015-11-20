@@ -1,0 +1,30 @@
+This is the full Agda development which accompanies the paper draft
+"Constructive Galois Connections: Taming the Galois Connection Framework for
+Mechanized Metatheory" by Darais and Van Horn.
+
+- Prelude/Core.agda, Prelude/Relations.agda, Prelude/Classes.agda and
+  Data/*.agda set up a basic standard libarary, and are exported by
+  Prelude.agda
+- POSet/*.agda develops posets and monotonic types like functions, product and powerset
+- POSet/GaloisConnection/*.agda develops classical, Kleisli and constructive Galois connections
+- CDGAI/*.agda develops Cousot's calculational derivation of a generic abstract
+  interpreter for arithmetic expressions:
+
+  - CDGAI/ASyntax.agda       -- Arithmetic Syntax
+  - CDGAI/ASemantics.agda    -- Arithmetic Semantics
+  - CDGAI/AEnvAbstract.agda  -- Abstraction for environments
+  - CDGAI/AExpAbstract.agda  -- The calculated generic arithmetic abstract interpreter
+
+- AGT/*.agda develops the simply typed metatheory from Garcia, Clark and
+  Tanter's "Abstracting Gradual Typing".
+
+  - AGT/SimplyTyped/Concrete.agda  -- The initial simple type system
+  - AGT/SimplyTyped/Abstract.agda  -- The derived gradual type system
+
+Typechecking CDGAI.agda and AGT.agda will trigger typechecking the whole
+development, which we provide a command for in the Makefile. To typecheck the
+development run:
+
+    make
+
+We are using the latest version of Agda: 2.4.2.4.

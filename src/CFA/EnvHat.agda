@@ -1,0 +1,319 @@
+module CFA.EnvHat where
+
+open import Prelude
+open import POSet
+
+open import CFA.Syntax
+open import CFA.Semantics
+open import CFA.ValueHat
+
+-- data env^[_] Γ : ℕ → Set where
+--   []  : env^[ Γ ] 0
+--   _∷_ : ∀ {n} → list-set (value^ Γ) → env^[ Γ ] n → env^[ Γ ] (Suc n)
+-- 
+-- env^ : context → Set
+-- env^ Γ = env^[ Γ ] Γ
+-- 
+-- lookup⸢env^⸣ : ∀ {Γ n} → var n → env^[ Γ ] n → list-set (value^ Γ)
+-- lookup⸢env^⸣ Zero    (v ∷ ρ) = v
+-- lookup⸢env^⸣ (Suc x) (v ∷ ρ) = lookup⸢env^⸣ x ρ
+-- 
+-- data [_,_]∈⸢env^⸣_ {Γ} : ∀ {n} → var n → list-set (value^ Γ) → env^[ Γ ] n → Set where
+--   Zero : ∀ {n} {ρ : env^[ Γ ] n} {vs₁ vs₂} → vs₁ ⊴ vs₂ → [ Zero , vs₁ ]∈⸢env^⸣ (vs₂ ∷ ρ)
+--   Suc : ∀ {n} {ρ : env^[ Γ ] n} {x vs₁ vs₂} → [ x , vs₂ ]∈⸢env^⸣ ρ → [ Suc x , vs₂ ]∈⸢env^⸣ (vs₁ ∷ ρ)
+-- 
+-- [x,lookup]∈ρ⸢env^⸣ : ∀ {Γ n} (x : var n) (ρ^ : env^[ Γ ] n) → [ x , lookup⸢env^⸣ x ρ^ ]∈⸢env^⸣ ρ^
+-- [x,lookup]∈ρ⸢env^⸣ Zero    (v ∷ ρ^) = Zero xRx
+-- [x,lookup]∈ρ⸢env^⸣ (Suc x) (v ∷ ρ^) = Suc ([x,lookup]∈ρ⸢env^⸣ x ρ^)
+-- 
+-- ∈→⊴lookup⸢env^⸣ : ∀ {Γ n} {x : var n} {vs^ : list-set (value^ Γ)} {ρ^ : env^[ Γ ] n} → [ x , vs^ ]∈⸢env^⸣ ρ^ → vs^ ⊴ lookup⸢env^⸣ x ρ^
+-- ∈→⊴lookup⸢env^⸣ {x = Zero} (Zero vs⊴vs') = vs⊴vs'
+-- ∈→⊴lookup⸢env^⸣ {x = Suc x} (Suc [x,vs]∈ρ) = ∈→⊴lookup⸢env^⸣ [x,vs]∈ρ
+-- 
+-- data _⊴⸢env^⸣_ {Γ} : ∀ {n} → relation zeroˡ (env^[ Γ ] n) where
+--   [] : [] ⊴⸢env^⸣ []
+--   _∷_ : ∀ {n} {ρ₁ ρ₂ : env^[ Γ ] n} {vs₁ vs₂} → vs₁ ⊴ vs₂ → ρ₁ ⊴⸢env^⸣ ρ₂ → (vs₁ ∷ ρ₁) ⊴⸢env^⸣ (vs₂ ∷ ρ₂)
+-- 
+-- ext[⊴⸢env^⸣] : ∀ {Γ n} {ρ₁ ρ₂ : env^[ Γ ] n} → ρ₁ ⊴⸢env^⸣ ρ₂ ↔ (∀ {x} → lookup⸢env^⸣ x ρ₁ ⊴ lookup⸢env^⸣ x ρ₂)
+-- ext[⊴⸢env^⸣] = LHS , RHS
+--   where
+--     LHS : ∀ {Γ n} {ρ₁ ρ₂ : env^[ Γ ] n} → ρ₁ ⊴⸢env^⸣ ρ₂ → ∀ {x} → lookup⸢env^⸣ x ρ₁ ⊴⸢list-set⸣ lookup⸢env^⸣ x ρ₂
+--     LHS (vs₁⊴vs₂ ∷ ρ₁⊴ρ₂) {Zero} = vs₁⊴vs₂
+--     LHS (vs₁⊴vs₂ ∷ ρ₁⊴ρ₂) {Suc x} = LHS ρ₁⊴ρ₂ {x}
+--     RHS : ∀ {Γ n} {ρ₁ ρ₂ : env^[ Γ ] n} → (∀ {x} → lookup⸢env^⸣ x ρ₁ ⊴⸢list-set⸣ lookup⸢env^⸣ x ρ₂) → ρ₁ ⊴⸢env^⸣ ρ₂
+--     RHS {ρ₁ = []}      {ρ₂ = []}       ∀x:ρ₁[x]⊴ρ₂[x] = []
+--     RHS {ρ₁ = vs₁ ∷ ρ₁} {ρ₂ = vs₂ ∷ ρ₂} ∀x:ρ₁[x]⊴ρ₂[x] = ∀x:ρ₁[x]⊴ρ₂[x] {Zero} ∷ RHS (λ {x} → ∀x:ρ₁[x]⊴ρ₂[x] {Suc x})
+-- 
+-- ext[⊴⸢env^⸣]-v : ∀ {Γ n} {ρ₁ ρ₂ : env^[ Γ ] n} → ρ₁ ⊴⸢env^⸣ ρ₂ ↔ (∀ {x} {v} → v ∈⸢list-set⸣ lookup⸢env^⸣ x ρ₁ → v ∈⸢list-set⸣ lookup⸢env^⸣ x ρ₂)
+-- ext[⊴⸢env^⸣]-v = (λ ρ₁⊴ρ₂ {x} → π₁ ext[⊴⸢list-set⸣] (π₁ ext[⊴⸢env^⸣] ρ₁⊴ρ₂ {x})) , (λ ∀xv:ρ₁⊴ρ₂ → π₂ ext[⊴⸢env^⸣] (λ {x} → π₂ ext[⊴⸢list-set⸣] (∀xv:ρ₁⊴ρ₂ {x})))
+-- 
+-- xRx⸢⊴⸢env^⸣⸣ : ∀ {Γ n} → reflexive (_⊴⸢env^⸣_ {Γ} {n})
+-- xRx⸢⊴⸢env^⸣⸣ = π₂ ext[⊴⸢env^⸣] xRx
+-- 
+-- _⌾⸢⊴⸢env^⸣⸣_ : ∀ {Γ n} → transitive (_⊴⸢env^⸣_ {Γ} {n})
+-- ρ₂⊴ρ₃ ⌾⸢⊴⸢env^⸣⸣ ρ₁⊴ρ₂ = π₂ ext[⊴⸢env^⸣] (λ {x} → π₁ ext[⊴⸢env^⸣] ρ₂⊴ρ₃ {x} ⌾ π₁ ext[⊴⸢env^⸣] ρ₁⊴ρ₂ {x})
+-- 
+-- instance
+--   Reflexive⸢⊴⸢env^⸣⸣ : ∀ {Γ n} → Reflexive (_⊴⸢env^⸣_ {Γ} {n})
+--   Reflexive⸢⊴⸢env^⸣⸣ = record { xRx = xRx⸢⊴⸢env^⸣⸣ }
+--   Transitive⸢⊴⸢env^⸣⸣ : ∀ {Γ n} → Transitive (_⊴⸢env^⸣_ {Γ} {n})
+--   Transitive⸢⊴⸢env^⸣⸣ = record { _⌾_ = _⌾⸢⊴⸢env^⸣⸣_ }
+--   PreOrder⸢env^⸣ : ∀ {Γ n} → PreOrder zeroˡ (env^[ Γ ] n)
+--   PreOrder⸢env^⸣ = record { _⊴_ = _⊴⸢env^⸣_ }
+-- 
+-- build⸢env^⸣-n : ∀ {Γ n} → n ≤⸢Γ⸣ Γ → (var Γ → list-set (value^ Γ)) → env^[ Γ ] n
+-- build⸢env^⸣-n {n = Zero}  n≤⸢Γ⸣Γ f = []
+-- build⸢env^⸣-n {n = Suc n} n≤⸢Γ⸣Γ f = f (rename⸢var⸣ n≤⸢Γ⸣Γ Zero) ∷ build⸢env^⸣-n (suc-≤⸢Γ⸣ n≤⸢Γ⸣Γ) f
+-- 
+-- build⸢env^⸣ : ∀ {Γ} → (var Γ → list-set (value^ Γ)) → env^ Γ
+-- build⸢env^⸣ = build⸢env^⸣-n Zero
+-- 
+-- lookup-build⸢env^⸣-≡-n : ∀ {Γ n} (φ : n ≤⸢Γ⸣ Γ) (x : var n)  (f : var Γ → list-set (value^ Γ)) → lookup⸢env^⸣ x (build⸢env^⸣-n φ f) ≡ f (rename⸢var⸣ φ x)
+-- lookup-build⸢env^⸣-≡-n {Γ} {Suc n} φ Zero    f = ↯
+-- lookup-build⸢env^⸣-≡-n {Γ} {Suc n} φ (Suc x) f rewrite lookup-build⸢env^⸣-≡-n {Γ} {n} (suc-≤⸢Γ⸣ φ) x f | rename-suc⸢var⸣-≡ φ x = ↯
+-- 
+-- lookup-build⸢env^⸣-≡ : ∀ {Γ} (x : var Γ) (f : var Γ → list-set (value^ Γ)) → lookup⸢env^⸣ x (build⸢env^⸣ f) ≡ f x
+-- lookup-build⸢env^⸣-≡ = lookup-build⸢env^⸣-≡-n Zero
+-- 
+-- -- Reachable Values
+-- 
+-- mutual
+--   α⸢env⊰val⸣ : ∀ {Γ} → value Γ → list-set (env Γ)
+--   α⸢env⊰val⸣ (FClo x k c ρ) = ρ ∷ α⸢env⊰env⸣ ρ
+--   α⸢env⊰val⸣ (KClo x c ρ) = ρ ∷ α⸢env⊰env⸣ ρ
+--   α⸢env⊰val⸣ Stop = []
+--   α⸢env⊰val⸣ Undefined = []
+-- 
+--   α⸢env⊰env⸣ : ∀ {Γ n} → env[ Γ ] n → list-set (env Γ)
+--   α⸢env⊰env⸣ [] = []
+--   α⸢env⊰env⸣ (v ∷ ρ) = α⸢env⊰val⸣ v ∪⸢list-set⸣ α⸢env⊰env⸣ ρ
+-- 
+-- α⸢⊰⸢env⸣⸣ : ∀ {Γ} → env Γ → list-set (env Γ)
+-- α⸢⊰⸢env⸣⸣ ρ = ρ ∷ α⸢env⊰env⸣ ρ
+-- 
+-- monotonic[α⸢⊰⸢env⸣⸣] : ∀ {Γ} {ρ₁ ρ₂ : env Γ} → ρ₁ ≡ ρ₂ → α⸢⊰⸢env⸣⸣ ρ₁ ⊴ α⸢⊰⸢env⸣⸣ ρ₂
+-- monotonic[α⸢⊰⸢env⸣⸣] ↯ = xRx
+-- 
+-- data _∈⸢env,val⸣_ {Γ} : env Γ → value Γ → Set where
+--   FClo : ∀ {ρ x k c} → ρ ∈⸢env,val⸣ FClo x k c ρ
+--   KClo : ∀ {ρ x c} → ρ ∈⸢env,val⸣ KClo x c ρ
+-- 
+-- mutual
+--   data _⊰⸢env,val⸣_ {Γ} : env Γ → value Γ → Set where
+--     Val : ∀ {ρ ρ' v} → ρ' ⊰⸢env⸣ ρ → ρ ∈⸢env,val⸣ v → ρ' ⊰⸢env,val⸣ v
+--   data _⊰⸢env⸣-n_ {Γ} : ∀ {n} → env Γ → env[ Γ ] n → Set where
+--     Rec-v : ∀ {n} {ρ : env[ Γ ] n} {ρ' : env Γ} {v} → ρ' ⊰⸢env,val⸣ v → ρ' ⊰⸢env⸣-n (v ∷ ρ)
+--     Rec-ρ : ∀ {n} {ρ : env[ Γ ] n} {ρ' : env Γ} {v} → ρ' ⊰⸢env⸣-n ρ → ρ' ⊰⸢env⸣-n (v ∷ ρ)
+--   data _⊰⸢env⸣_ {Γ} : env Γ → env Γ → Set where
+--     Refl : ∀ {ρ} → ρ ⊰⸢env⸣ ρ
+--     Step : ∀ {ρ ρ'} → ρ' ⊰⸢env⸣-n ρ → ρ' ⊰⸢env⸣ ρ
+-- 
+-- γ⸢⊰⸢env⸣⸣ : ∀ {Γ} → list-set (env Γ) → env Γ → Set
+-- γ⸢⊰⸢env⸣⸣ ρs ρ = ∀ {ρ'} → ρ' ⊰⸢env⸣ ρ → ρ' ∈⸢list-set⸣ ρs
+-- 
+-- monotonic[γ⸢⊰⸢env⸣⸣] : ∀ {Γ} {ρs₁ ρs₂ : list-set (env Γ)} → ρs₁ ⊴ ρs₂ → ∀ {ρ₁ ρ₂ : env Γ} → ρ₂ ≡ ρ₁ → γ⸢⊰⸢env⸣⸣ ρs₁ ρ₁ → γ⸢⊰⸢env⸣⸣ ρs₂ ρ₂
+-- monotonic[γ⸢⊰⸢env⸣⸣] ρs₁⊴ρs₂ ↯ ρ∈γ[ρs₁] ρ'⊰ρ = π₁ ext[⊴⸢list-set⸣] ρs₁⊴ρs₂ (ρ∈γ[ρs₁] ρ'⊰ρ)
+-- 
+-- mutual
+--   αγ-sound⸢env⊰val⸣ : ∀ {Γ} {ρ : env Γ} {v} → ρ ⊰⸢env,val⸣ v → ρ ∈⸢list-set⸣ α⸢env⊰val⸣ v
+--   αγ-sound⸢env⊰val⸣ {v = FClo x k c ._} (Val Refl FClo) = Zero
+--   αγ-sound⸢env⊰val⸣ {v = FClo x k c ρ₁} (Val (Step ρ'<ρ) FClo) = Suc (αγ-sound⸢env⊰env⸣ ρ'<ρ)
+--   αγ-sound⸢env⊰val⸣ {v = KClo x c ._} (Val Refl KClo) = Zero
+--   αγ-sound⸢env⊰val⸣ {v = KClo x c ρ₁} (Val (Step ρ'<ρ) KClo) = Suc (αγ-sound⸢env⊰env⸣ ρ'<ρ) 
+--   αγ-sound⸢env⊰val⸣ {v = Stop}          (Val ρ<ρ' ())
+--   αγ-sound⸢env⊰val⸣ {v = Undefined}     (Val ρ<ρ' ())
+--   
+--   αγ-sound⸢env⊰env⸣ : ∀ {Γ n} {ρ : env[ Γ ] n} {ρ' : env Γ} → ρ' ⊰⸢env⸣-n ρ → ρ' ∈⸢list-set⸣ α⸢env⊰env⸣ ρ
+--   αγ-sound⸢env⊰env⸣ (Rec-v ρ'<v) = x∈xs⸢list-set⸣ _ _ _ (αγ-sound⸢env⊰val⸣ ρ'<v)
+--   αγ-sound⸢env⊰env⸣ (Rec-ρ {v = v} ρ'<ρ) = x∈ys⸢list-set⸣ _ (α⸢env⊰val⸣ v) _ (αγ-sound⸢env⊰env⸣ ρ'<ρ)
+--   
+-- αγ-sound⸢⊰⸢env⸣⸣ : ∀ {Γ} (ρ : env Γ) → γ⸢⊰⸢env⸣⸣ (α⸢⊰⸢env⸣⸣ ρ) ρ
+-- αγ-sound⸢⊰⸢env⸣⸣ ρ Refl = Zero
+-- αγ-sound⸢⊰⸢env⸣⸣ ρ (Step ρ'<ρ) = Suc (αγ-sound⸢env⊰env⸣ ρ'<ρ)
+-- 
+-- mutual
+--   αγ-complete⸢env⊰val⸣ : ∀ {Γ} {ρ : env Γ} {v} → ρ ∈⸢list-set⸣ α⸢env⊰val⸣ v → ρ ⊰⸢env,val⸣ v
+--   αγ-complete⸢env⊰val⸣ {v = FClo x k c ._} Zero = Val Refl FClo
+--   αγ-complete⸢env⊰val⸣ {v = FClo x k c ρ'} (Suc ρ∈eie[ρ']) = Val (Step (αγ-complete⸢env⊰env⸣ ρ∈eie[ρ'])) FClo
+--   αγ-complete⸢env⊰val⸣ {v = KClo x c ._}   Zero = Val Refl KClo
+--   αγ-complete⸢env⊰val⸣ {v = KClo x c ρ'}   (Suc ρ∈eie[ρ']) = Val (Step (αγ-complete⸢env⊰env⸣ ρ∈eie[ρ'])) KClo
+--   αγ-complete⸢env⊰val⸣ {v = Stop}          ()
+--   αγ-complete⸢env⊰val⸣ {v = Undefined}     ()
+-- 
+--   αγ-complete⸢env⊰env⸣ : ∀ {Γ n} {ρ : env[ Γ ] n} {ρ' : env Γ} → ρ' ∈⸢list-set⸣ α⸢env⊰env⸣ ρ → ρ' ⊰⸢env⸣-n ρ
+--   αγ-complete⸢env⊰env⸣ {ρ = []} ()
+--   αγ-complete⸢env⊰env⸣ {ρ = v ∷ ρ} ρ'∈eie[v∷ρ] with x∈xs∪ys→⨄⸢list-set⸣ _ (α⸢env⊰val⸣ v) (α⸢env⊰env⸣ ρ) ρ'∈eie[v∷ρ]
+--   ... | Inl ρ'∈eiv[v] = Rec-v (αγ-complete⸢env⊰val⸣ ρ'∈eiv[v])
+--   ... | Inr ρ'∈eie[ρ] = Rec-ρ (αγ-complete⸢env⊰env⸣ ρ'∈eie[ρ])
+-- 
+-- αγ-complete⸢⊰⸢env⸣⸣-ext : ∀ {Γ} {ρ : env Γ} {ρs : list-set (env Γ)} → γ⸢⊰⸢env⸣⸣ ρs ρ → ∀ {ρ' : env Γ} → ρ' ∈⸢list-set⸣ α⸢⊰⸢env⸣⸣ ρ → ρ' ∈⸢list-set⸣ ρs
+-- αγ-complete⸢⊰⸢env⸣⸣-ext {Γ} {ρ} {ρs} ρ∈γ[ρs] {.ρ} Zero            = ρ∈γ[ρs] Refl 
+-- αγ-complete⸢⊰⸢env⸣⸣-ext {Γ} {ρ} {ρs} ρ∈γ[ρs] {ρ'} (Suc ρ'∈eie[ρ]) = ρ∈γ[ρs] (Step (αγ-complete⸢env⊰env⸣ ρ'∈eie[ρ]))
+-- 
+-- αγ-complete⸢⊰⸢env⸣⸣ : ∀ {Γ} {ρ : env Γ} {ρs} → γ⸢⊰⸢env⸣⸣ ρs ρ → α⸢⊰⸢env⸣⸣ ρ ⊴⸢list-set⸣ ρs
+-- αγ-complete⸢⊰⸢env⸣⸣ ρ∈γ[ρs] = π₂ ext[⊴⸢list-set⸣] (αγ-complete⸢⊰⸢env⸣⸣-ext ρ∈γ[ρs])
+-- 
+-- α⸢collapse⸣ : ∀ {Γ} → list-set (env Γ) → env^ Γ
+-- α⸢collapse⸣ ρs = build⸢env^⸣ (λ x → map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs)
+-- 
+-- monotonic[α⸢collapse⸣]-ext :
+--     ∀ {Γ} {ρs₁ ρs₂ : list-set (env Γ)} → ρs₁ ⊴ ρs₂
+--   → ∀ {x v^} → v^ ∈⸢list-set⸣ lookup⸢env^⸣ x (α⸢collapse⸣ ρs₁) → v^ ∈⸢list-set⸣ lookup⸢env^⸣ x (α⸢collapse⸣ ρs₂)
+-- monotonic[α⸢collapse⸣]-ext {Γ} {ρs₁} {ρs₂} ρs₁⊴ρs₂ {x} {v^} v^∈α[ρs₁][x]
+--   rewrite
+--     lookup-build⸢env^⸣-≡ x (λ x → map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs₁)
+--   | lookup-build⸢env^⸣-≡ x (λ x → map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs₂)
+--   with y∈map→∃x⸢list-set⸣ v^∈α[ρs₁][x]
+-- ... | ∃ ρ ,, v^≡α[ρ[x]] , ρ∈ρs rewrite v^≡α[ρ[x]] = homomorphic[∈⸢list-set⸣] (π₁ ext[⊴⸢list-set⸣] ρs₁⊴ρs₂ ρ∈ρs)
+-- 
+-- monotonic[α⸢collapse⸣] : ∀ {Γ} {ρs₁ ρs₂ : list-set (env Γ)} → ρs₁ ⊴ ρs₂ → α⸢collapse⸣ ρs₁ ⊴ α⸢collapse⸣ ρs₂
+-- monotonic[α⸢collapse⸣] ρs₁⊴ρs₂ = π₂ ext[⊴⸢env^⸣]-v (λ {x} → monotonic[α⸢collapse⸣]-ext ρs₁⊴ρs₂ {x})
+-- 
+-- γ⸢collapse⸣ : ∀ {Γ} → env^ Γ → list-set (env Γ) → Set
+-- γ⸢collapse⸣ ρ^ ρs =
+--   ∀ x 
+--   → ∀ ρ → ρ ∈⸢list-set⸣ ρs
+--   → ∀ v → [ x , v ]∈⸢env⸣ ρ
+--   → ∃ vs^ 𝑠𝑡 [ x , vs^ ]∈⸢env^⸣ ρ^
+--   × (∃ v^ 𝑠𝑡 v^ ∈⸢list-set⸣ vs^ × γ⸢val⸣ v^ v)
+-- 
+-- injective[∷][⊴⸢list-set⸣] : ∀ {Γ n} {ρ₁^ ρ₂^ : env^[ Γ ] n} {vs₁^ vs₂^ : list-set (value^ Γ)} → (vs₁^ ∷ ρ₁^) ⊴⸢env^⸣ (vs₂^ ∷ ρ₂^) → ρ₁^ ⊴⸢env^⸣ ρ₂^
+-- injective[∷][⊴⸢list-set⸣] {Γ} {n} {ρ₁^} {ρ₂^} {vs₁^} {vs₂^} ρ₁⊴ρ₂ = π₂ ext[⊴⸢env^⸣] (λ {x} → π₁ ext[⊴⸢env^⸣] ρ₁⊴ρ₂ {Suc x})
+-- 
+-- monotonic[∈⸢env⸣] : ∀ {Γ n} {x : var n} {ρ₁^ ρ₂^ : env^[ Γ ] n} {vs^ : list-set (value^ Γ)} → ρ₁^ ⊴ ρ₂^ → [ x , vs^ ]∈⸢env^⸣ ρ₁^ → [ x , vs^ ]∈⸢env^⸣ ρ₂^
+-- monotonic[∈⸢env⸣] {x = Zero}  {ρ₁^ = vs₁^ ∷ ρ₁^} {vs₂^ ∷ ρ₂^} ρ₁⊴ρ₂ (Zero vs₁⊴vs₁') = Zero (π₁ ext[⊴⸢env^⸣] ρ₁⊴ρ₂ {Zero} ⌾ vs₁⊴vs₁')
+-- monotonic[∈⸢env⸣] {x = Suc x} {ρ₁^ = vs₁^ ∷ ρ₁^} {vs₂^ ∷ ρ₂^} ρ₁⊴ρ₂  (Suc [x,vs]∈ρ₁) = Suc (monotonic[∈⸢env⸣] (injective[∷][⊴⸢list-set⸣] ρ₁⊴ρ₂) [x,vs]∈ρ₁)
+-- 
+-- monotonic[γ⸢collapse⸣] : ∀ {Γ} {ρ₁^ ρ₂^ : env^ Γ} → ρ₁^ ⊴ ρ₂^ → ∀ {ρs₁ ρs₂ : list-set (env Γ)} → ρs₂ ⊴ ρs₁ → γ⸢collapse⸣ ρ₁^ ρs₁ → γ⸢collapse⸣ ρ₂^ ρs₂
+-- monotonic[γ⸢collapse⸣] ρ₁^⊴ρ₂^ ρs₂⊴ρs₁ ρs₁∈γ[ρ₁^] x ρ ρ∈ρs₂ v [x,v]∈ρ with ρs₁∈γ[ρ₁^] x ρ (π₁ ext[⊴⸢list-set⸣] ρs₂⊴ρs₁ ρ∈ρs₂) v [x,v]∈ρ
+-- ... | ∃ vs^ ,, [x,vs^]∈ρ₁^ , (∃ v^ ,, v^∈vs^ , v∈γ[v^]) = ∃ vs^ ,, monotonic[∈⸢env⸣] ρ₁^⊴ρ₂^ [x,vs^]∈ρ₁^ , (∃ v^ ,, v^∈vs^ , v∈γ[v^])
+-- 
+-- v∈map∘lookup : ∀ {Γ} {ρs : list-set (env Γ)} {ρ} {x} {v} → ρ ∈⸢list-set⸣ ρs → [ x , v ]∈⸢env⸣ ρ → v ∈⸢list-set⸣ map (lookup⸢env⸣ x) ρs
+-- v∈map∘lookup ρ∈ρs [x,v]∈ρ rewrite ◇⸢≡⸣ $ ∈-lookup⸢env⸣-≡ [x,v]∈ρ = homomorphic[∈⸢list-set⸣] ρ∈ρs
+-- 
+-- αγ-sound⸢collapse⸣-v^∈ρ^ : ∀ {Γ} {ρs : list-set (env Γ)} {ρ x v} → ρ ∈⸢list-set⸣ ρs → [ x , v ]∈⸢env⸣ ρ → α⸢val⸣ v ∈⸢list-set⸣ map⸢list-set⸣ (λ x₁ → α⸢val⸣ (lookup⸢env⸣ x x₁)) ρs
+-- αγ-sound⸢collapse⸣-v^∈ρ^ {ρs = ρs} {ρ} {x} {v} ρ∈ρs [x,v]∈ρ rewrite homomorphic[map⸢list-set⸣] α⸢val⸣ (lookup⸢env⸣ x) ρs = homomorphic[∈⸢list-set⸣] (v∈map∘lookup ρ∈ρs [x,v]∈ρ)
+-- 
+-- αγ-sound⸢collapse⸣-vs^∈ρ^ : ∀ {Γ} (ρs : list-set (env Γ)) x → [ x , map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs ]∈⸢env^⸣ α⸢collapse⸣ ρs
+-- αγ-sound⸢collapse⸣-vs^∈ρ^ ρs x with [x,lookup]∈ρ⸢env^⸣ x (α⸢collapse⸣ ρs)
+-- ... | [x,vs]∈α[ρs] rewrite lookup-build⸢env^⸣-≡ x (λ x → map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs) = [x,vs]∈α[ρs]
+-- 
+-- αγ-sound⸢collapse⸣ : ∀ {Γ} (ρs : list-set (env Γ)) → γ⸢collapse⸣ (α⸢collapse⸣ ρs) ρs
+-- αγ-sound⸢collapse⸣ ρs x ρ ρ∈ρs v [x,v]∈ρ =
+--   ∃  map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs
+--   ,, αγ-sound⸢collapse⸣-vs^∈ρ^ ρs x
+--   ,  (∃ α⸢val⸣ v
+--      ,, αγ-sound⸢collapse⸣-v^∈ρ^ ρ∈ρs [x,v]∈ρ
+--      ,  αγ-sound⸢val⸣ v
+--      )
+-- αγ-complete⸢collapse⸣-ext : ∀ {Γ} {ρs : list-set (env Γ)} {ρ^ x v^} → γ⸢collapse⸣ ρ^ ρs → v^ ∈⸢list-set⸣ lookup⸢env^⸣ x (α⸢collapse⸣ ρs) → v^ ∈⸢list-set⸣ lookup⸢env^⸣ x ρ^
+-- αγ-complete⸢collapse⸣-ext {Γ} {ρs} {ρ^} {x} {v^} ρ^∈γ[ρs] v∈α[ρs][x]
+--   rewrite lookup-build⸢env^⸣-≡ x (λ x → map⸢list-set⸣ (α⸢val⸣ ∘ lookup⸢env⸣ x) ρs)
+--   with y∈map→∃x⸢list-set⸣ v∈α[ρs][x]
+-- ... | ∃ ρ ,, v^≡α[ρ[x]] , ρ∈ρs rewrite v^≡α[ρ[x]] with ρ^∈γ[ρs] x ρ ρ∈ρs (lookup⸢env⸣ x ρ) (∈-lookup⸢env⸣ x ρ)
+-- ... | ∃ vs^ ,, [x,vs^]∈ρ^ , (∃ v'^ ,, v'^∈vs^ , v∈γ[v'^]) rewrite αγ-complete⸢val⸣ v∈γ[v'^] = π₁ ext[⊴⸢list-set⸣] (∈→⊴lookup⸢env^⸣ [x,vs^]∈ρ^) v'^∈vs^
+-- 
+-- 
+-- αγ-complete⸢collapse⸣ : ∀ {Γ} {ρs : list-set (env Γ)} {ρ^ : env^ Γ} → γ⸢collapse⸣ ρ^ ρs → α⸢collapse⸣ ρs ⊴⸢env^⸣ ρ^
+-- αγ-complete⸢collapse⸣ {Γ} {ρs} {ρ^} ρs∈γ[ρ^] = π₂ ext[⊴⸢env^⸣]-v (λ {x} → αγ-complete⸢collapse⸣-ext {x = x} ρs∈γ[ρ^])
+-- 
+-- ⇄[⊰⸢env⸣]⇄ : ∀ {Γ} → ⇧ (env Γ) η⇄γ ⇧ (list-set (env Γ))
+-- ⇄[⊰⸢env⸣]⇄ {Γ} = mk[η⇄γ]⸢↑⸣ $ record
+--   { η⸢↑⸣ = α⸢⊰⸢env⸣⸣
+--   ; monotonic[η⸢↑⸣] = monotonic[α⸢⊰⸢env⸣⸣]
+--   ; γ⸢↑⸣ = γ⸢⊰⸢env⸣⸣
+--   ; monotonic[γ⸢↑⸣] = monotonic[γ⸢⊰⸢env⸣⸣]
+--   ; sound[ηγ]⸢↑⸣ = λ {x} → αγ-sound⸢⊰⸢env⸣⸣ x
+--   ; complete[ηγ]⸢↑⸣ = αγ-complete⸢⊰⸢env⸣⸣
+--   }
+-- 
+-- ⇄collapse⇄ : ∀ {Γ} → ⇧ (list-set (env Γ)) η⇄γ ⇧ (env^ Γ)
+-- ⇄collapse⇄ {Γ} = mk[η⇄γ]⸢↑⸣ $ record
+--   { η⸢↑⸣ = α⸢collapse⸣
+--   ; monotonic[η⸢↑⸣] = monotonic[α⸢collapse⸣]
+--   ; γ⸢↑⸣ = γ⸢collapse⸣
+--   ; monotonic[γ⸢↑⸣] = monotonic[γ⸢collapse⸣]
+--   ; sound[ηγ]⸢↑⸣ = λ {x} → αγ-sound⸢collapse⸣ x
+--   ; complete[ηγ]⸢↑⸣ = αγ-complete⸢collapse⸣
+--   }
+-- 
+-- ⇄env⇄ : ∀ {Γ} → ⇧ (env Γ) η⇄γ ⇧ (env^ Γ)
+-- ⇄env⇄ = ⇄collapse⇄ ⌾⸢η⇄γ⸣ ⇄[⊰⸢env⸣]⇄
+-- 
+-- -- Deciding things --
+-- 
+-- data isFClo {Γ} : value^ Γ → Set where
+--   Is : ∀ {x' k c} → isFClo (FClo x' k c)
+-- 
+-- mutual
+--   decideFilterFClo : ∀ {Γ} (vs : list-set (value^ Γ)) → ∃ vs' 𝑠𝑡 (∀ {v} → v ∈⸢list-set⸣ vs × isFClo v ↔ v ∈⸢list-set⸣ vs')
+--   decideFilterFClo [] = ∃ [] ,, (λ{ (() , _) }) , (λ ())
+--   decideFilterFClo (FClo x k c ∷ vs) with decideFilterFClo vs
+--   ... | ∃ vs' ,, v∈vs×v≡clo↔v∈vs' = ∃ FClo x k c ∷ vs' ,, LHS , RHS
+--     where
+--       LHS : ∀ {v} → v ∈⸢list-set⸣ (FClo x k c ∷ vs) × isFClo v → v ∈⸢list-set⸣ (FClo x k c ∷ vs')
+--       LHS (Zero , Is) = Zero
+--       LHS (Suc v∈vs , Is) = Suc $ π₁ v∈vs×v≡clo↔v∈vs' $ v∈vs , Is
+--       RHS : ∀ {v} → v ∈⸢list-set⸣ (FClo x k c ∷ vs') → v ∈⸢list-set⸣ (FClo x k c ∷ vs) × isFClo v
+--       RHS Zero = Zero , Is
+--       RHS (Suc v∈vs') with π₂ v∈vs×v≡clo↔v∈vs' v∈vs'
+--       ... | v∈vs , Is = Suc v∈vs , Is
+--   decideFilterFClo (KClo x c ∷ vs) = decideFilterFClo-not (KClo x c) (λ ()) vs
+--   decideFilterFClo (Stop ∷ vs) = decideFilterFClo-not Stop (λ ()) vs
+--   decideFilterFClo (Undefined ∷ vs) = decideFilterFClo-not Undefined (λ ()) vs
+-- 
+--   decideFilterFClo-not : ∀ {Γ} (v : value^ Γ) (v≢clo : not (isFClo v)) (vs : list-set (value^ Γ)) → ∃ vs' 𝑠𝑡 (∀ {v'} → v' ∈⸢list-set⸣ (v ∷ vs) × isFClo v' ↔ v' ∈⸢list-set⸣ vs')
+--   decideFilterFClo-not v v≢clo vs with decideFilterFClo vs
+--   ... | ∃ vs' ,, v∈vs×v≡clo↔v∈vs' = ∃ vs' ,, LHS , RHS
+--     where
+--       LHS : ∀ {v'} → v' ∈⸢list-set⸣ (v ∷ vs) × isFClo v' → v' ∈⸢list-set⸣ vs'
+--       LHS (Zero , v≡clo) = exfalso $ v≢clo v≡clo
+--       LHS (Suc v∈vs , Is) = π₁ v∈vs×v≡clo↔v∈vs' $ v∈vs , Is
+--       RHS : ∀ {v'} → v' ∈⸢list-set⸣ vs' → v' ∈⸢list-set⸣ (v ∷ vs) × isFClo v'
+--       RHS v∈vs' with π₂ v∈vs×v≡clo↔v∈vs' v∈vs'
+--       ... | v∈vs , Is = Suc v∈vs , Is
+-- 
+-- decideLookupFClo : ∀ {Γ n} (ρ : env^[ Γ ] n) (x : var n) → ∃ vs 𝑠𝑡 (∀ {v} → v ∈⸢list-set⸣ lookup⸢env^⸣ x ρ × isFClo v ↔ v ∈⸢list-set⸣ vs)
+-- decideLookupFClo (vs ∷ ρ) Zero = decideFilterFClo vs
+-- decideLookupFClo (vs ∷ ρ) (Suc x) = decideLookupFClo ρ x
+-- 
+-- -- decideDenoteFClo : ∀ {Γ n} (fa : atom
+-- 
+-- -- decideLookupFClo (FClo x k c ρ' ∷ ρ) Zero    = Yes ↯
+-- -- decideLookupFClo (KClo x c ρ' ∷ ρ)   Zero    = No $ λ ()
+-- -- decideLookupFClo (Stop ∷ ρ)          Zero    = No $ λ ()
+-- -- decideLookupFClo (Undefined ∷ ρ)     Zero    = No $ λ ()
+-- -- decideLookupFClo (v ∷ ρ)             (Suc x) with decideLookupFClo ρ x
+-- -- ... | Yes ρ[x]≡clo = Yes ρ[x]≡clo
+-- -- ... | No ρ[x]≢clo = No ρ[x]≢clo
+-- -- 
+-- -- decideLookupKClo : ∀ {Γ n} (ρ : env[ Γ ] n) (x : var n) → DecideLookupKClo ρ x
+-- -- decideLookupKClo (FClo x k c ρ' ∷ ρ) Zero = No $ λ ()
+-- -- decideLookupKClo (KClo x c ρ' ∷ ρ) Zero = Yes ↯
+-- -- decideLookupKClo (Stop ∷ ρ) Zero = No $ λ ()
+-- -- decideLookupKClo (Undefined ∷ ρ) Zero = No $ λ ()
+-- -- decideLookupKClo (v ∷ ρ) (Suc x) with decideLookupKClo ρ x
+-- -- ... | Yes ρ[x]≡clo = Yes ρ[x]≡clo
+-- -- ... | No ρ[x]≢clo = No ρ[x]≢clo
+-- -- 
+-- -- data DecideDenoteFClo {Γ} (ρ : env Γ) (fa : atom Γ) : Set where
+-- --   Yes : ∀ {x k c ρ'} → ⟦ fa ⟧ ρ ≡ FClo x k c ρ' → DecideDenoteFClo ρ fa
+-- --   No : (∀ {x k c ρ'} → ⟦ fa ⟧ ρ ≢ FClo x k c ρ') → DecideDenoteFClo ρ fa
+-- -- 
+-- -- data DecideDenoteKClo {Γ} (ρ : env Γ) (fa : atom Γ) : Set where
+-- --   Yes : ∀ {x c ρ'} → ⟦ fa ⟧ ρ ≡ KClo x c ρ' → DecideDenoteKClo ρ fa
+-- --   No : (∀ {x c ρ'} → ⟦ fa ⟧ ρ ≢ KClo x c ρ') → DecideDenoteKClo ρ fa
+-- -- 
+-- -- decideDenoteFClo : ∀ {Γ} (ρ : env Γ) (fa : atom Γ) → DecideDenoteFClo ρ fa
+-- -- decideDenoteFClo ρ (Var x) with decideLookupFClo ρ x
+-- -- ... | Yes ρ[x]≡clo = Yes ρ[x]≡clo
+-- -- ... | No ρ[x]≢clo  = No ρ[x]≢clo
+-- -- decideDenoteFClo ρ (FLam x k c) = Yes ↯
+-- -- decideDenoteFClo ρ (KLam x c) = No $ λ ()
+-- -- 
+-- -- decideDenoteKClo : ∀ {Γ} (ρ : env Γ) (fa : atom Γ) → DecideDenoteKClo ρ fa
+-- -- decideDenoteKClo ρ (Var x) with decideLookupKClo ρ x
+-- -- ... | Yes ρ[x]≡clo = Yes ρ[x]≡clo
+-- -- ... | No ρ[x]≢clo  = No ρ[x]≢clo
+-- -- decideDenoteKClo ρ (FLam x k c) = No $ λ ()
+-- -- decideDenoteKClo ρ (KLam x c) = Yes ↯
