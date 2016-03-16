@@ -1,0 +1,35 @@
+module Poset.FSet where
+
+-- open import Prelude
+-- open import Poset.Poset
+-- open import Poset.Power
+-- open import Poset.Fun
+-- 
+-- data fset {ℓ} (A : Poset ℓ) : Set ℓ where
+--   ♮⟨_⟩ : list-set ⟪ A ⟫ → fset A
+-- 
+-- data _∈⸢fset⸣_ {ℓ} {A : Poset ℓ} (x : ⟪ A ⟫) : fset A → Set ℓ where
+--   In : ∀ {y xs} → x ⊑ y → y ∈⸢list-set⸣ xs → x ∈⸢fset⸣ ♮⟨ xs ⟩
+-- 
+-- data _⊴⸢fset⸣_ {ℓ} {A : Poset ℓ} : relation ℓ (fset A) where
+--   ♮⟨_⟩ : ∀ {xs ys} → (∀ {x} → x ∈⸢list-set⸣ xs → ∃ y 𝑠𝑡 x ⊑ y × y ∈⸢list-set⸣ ys) → ♮⟨ xs ⟩ ⊴⸢fset⸣ ♮⟨ ys ⟩
+-- 
+-- xRx⸢⊴⸢fset⸣⸣ : ∀ {ℓ} {A : Poset ℓ} → reflexive (_⊴⸢fset⸣_ {A = A})
+-- xRx⸢⊴⸢fset⸣⸣ {x = ♮⟨ xs ⟩} = ♮⟨ (λ {x} x∈xs → ∃ x ,, xRx , x∈xs) ⟩
+-- 
+-- _⊚⸢⊴⸢fset⸣⸣_ : ∀ {ℓ} {A : Poset ℓ} → transitive (_⊴⸢fset⸣_ {A = A})
+-- _⊚⸢⊴⸢fset⸣⸣_ {x = ♮⟨ xs ⟩} {♮⟨ ys ⟩} {♮⟨ zs ⟩} ♮⟨ ys⊑zs ⟩ ♮⟨ xs⊑ys ⟩ = ♮⟨ P ⟩
+--   where
+--     P : ∀ {x} → x ∈⸢list-set⸣ xs → ∃ z 𝑠𝑡 x ⊑ z × z ∈⸢list-set⸣ zs
+--     P x∈xs with xs⊑ys x∈xs
+--     ... | ∃ y ,, x⊴y , y∈ys with ys⊑zs y∈ys
+--     ... | ∃ z ,, y⊴z , z∈zs = ∃ z ,, y⊴z ⊚ x⊴y , z∈zs
+-- 
+-- instance
+--   Reflexive[⊴⸢fset⸣⸣] : ∀ {ℓ} {A : Poset ℓ} → Reflexive (_⊴⸢fset⸣_ {A = A})
+--   Reflexive[⊴⸢fset⸣⸣] = record { xRx = xRx⸢⊴⸢fset⸣⸣ }
+--   Transitive[⊴⸢fset⸣⸣] : ∀ {ℓ} {A : Poset ℓ} → Transitive (_⊴⸢fset⸣_ {A = A})
+--   Transitive[⊴⸢fset⸣⸣] = record { _⊚_ = _⊚⸢⊴⸢fset⸣⸣_ }
+--   PreOrder[fset] : ∀ {ℓ} {A : Poset ℓ} → PreOrder ℓ (fset A)
+--   PreOrder[fset] = record { _⊴_ = _⊴⸢fset⸣_ }
+-- 
