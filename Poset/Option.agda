@@ -28,11 +28,11 @@ instance
   Reflexive[≼⸢option⸣] = record { xRx = xRx⸢≼⸢option⸣⸣ }
   Transitive[≼⸢option⸣] : ∀ {ℓ} {A : Poset ℓ} → Transitive (_≼⸢option⸣_ {A = A})
   Transitive[≼⸢option⸣] = record { _⊚_ = _⊚⸢≼⸢option⸣⸣_ }
-  PreOrder[option] : ∀ {ℓ} {A : Poset ℓ} → PreOrder (ℓ) (option♭ A)
-  PreOrder[option] = record { _≼_ = _≼⸢option⸣_ }
+  Precision[option♭] : ∀ {ℓ} {A : Poset ℓ} → Precision (ℓ) (option♭ A)
+  Precision[option♭] = mk[Precision] _≼⸢option⸣_
 
 option♮ : ∀ {ℓ} → Poset ℓ → Poset ℓ
 option♮ A = ⇧ (option♭ A)
 
--- ♮⸢option⸣ : ∀ {ℓ} {A : Set ℓ} {{PO : PreOrder ℓ A}} → option A → ⟪ option♮ (⇧ A) ⟫
+-- ♮⸢option⸣ : ∀ {ℓ} {A : Set ℓ} {{PO : Precision ℓ A}} → option A → ⟪ option♮ (⇧ A) ⟫
 -- ♮⸢option⸣ = {!!}

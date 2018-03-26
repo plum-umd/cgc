@@ -6,6 +6,7 @@ open import Poset.Fun
 open import Poset.Power
 open import Poset.ProofMode
 open import Poset.Lib
+open import Poset.List
 
 infixr 2 ∃℘_,,_,,_
 infixr 10 Σ℘
@@ -22,25 +23,28 @@ return♮ {ℓ} {A} = witness (curry⸢λ⸣ id⸢ω⸣) $ mk[witness] fun ppr
       ppr x₁⊑x₂ y₁⊒y₂ x₁∈X₁ = x₁⊑x₂ ⊚ x₁∈X₁ ⊚ y₁⊒y₂
 
 ⟦return⊑X⟧ : ∀ {ℓ} {A : Poset ℓ} {x : ⟪ A ⟫} {X : ⟪ ℘ A ⟫} → return♮ ⋅ x ⊑♮ X ↔ x ⋿ X
-⟦return⊑X⟧ {x = x} {X} =  (λ return[x]⊑X → res[X]⸢⊑℘⸣ return[x]⊑X xRx) , (λ x∈X → ext⸢⊑℘⸣ (λ x⊒y → res[x]⸢⊑℘⸣ {X = X} x⊒y x∈X))
+⟦return⊑X⟧ {x = x} {X} =  ⟨ (λ return[x]⊑X → res[X][℘]⸢⊑⸣ return[x]⊑X xRx) , (λ x∈X → ext[℘]⸢⊑⸣ (λ x⊒y → res[x][℘]⸢⊑⸣ {X = X} x⊒y x∈X)) ⟩
 
 ext⸢⊑℘/return⸣ : ∀ {ℓ} {A : Poset ℓ} {X Y : ⟪ ℘ A ⟫} → (∀ {x} → return♮ ⋅ x ⊑♮ X → return♮ ⋅ x ⊑♮ Y) → X ⊑♮ Y
-ext⸢⊑℘/return⸣ X⊑Y = ext⸢⊑℘⸣ $ π₁ ⟦return⊑X⟧ ∘ X⊑Y ∘ π₂ ⟦return⊑X⟧
+ext⸢⊑℘/return⸣ X⊑Y = ext[℘]⸢⊑⸣ $ π₁ ⟦return⊑X⟧ ∘ X⊑Y ∘ π₂ ⟦return⊑X⟧
 
 ext⸢≈℘/return⸣ : ∀ {ℓ} {A : Poset ℓ} {X Y : ⟪ ℘ A ⟫} → (∀ {x} → return♮ ⋅ x ⊑♮ X ↔ return♮ ⋅ x ⊑♮ Y) → X ≈♮ Y
-ext⸢≈℘/return⸣ {X = X} {Y} X≈Y = ext⸢≈℘⸣ $ π₁ ⟦return⊑X⟧ ∘ π₁ X≈Y ∘ π₂ ⟦return⊑X⟧ , π₁ ⟦return⊑X⟧ ∘ π₂ X≈Y ∘ π₂ ⟦return⊑X⟧
+ext⸢≈℘/return⸣ {X = X} {Y} X≈Y = ext[℘]⸢≈⸣ ⟨ π₁ ⟦return⊑X⟧ ∘ π₁ X≈Y ∘ π₂ ⟦return⊑X⟧ , π₁ ⟦return⊑X⟧ ∘ π₂ X≈Y ∘ π₂ ⟦return⊑X⟧ ⟩
 
 pure : ∀ {ℓ} {A B : Poset ℓ} → ⟪ (A ↗ B) ↗ (A ↗ ℘ B) ⟫
 pure = [∘♮] ⋅ return♮
 
 injective[pure]⸢⊑⸣ : ∀ {ℓ} {A B : Poset ℓ} {f g : ⟪ A ↗ B ⟫} → pure ⋅ f ⊑♮ pure ⋅ g → f ⊑♮ g
-injective[pure]⸢⊑⸣ pure[f]⊑pure[g] = ext⸢⊑↗⸣ $ π₁ ⟦return⊑X⟧ (res[f]⸢⊑↗⸣ pure[f]⊑pure[g])
+injective[pure]⸢⊑⸣ pure[f]⊑pure[g] = ext[↗]⸢⊑⸣ $ π₁ ⟦return⊑X⟧ (res[f][↗]⸢⊑⸣ pure[f]⊑pure[g])
   
 homomorphic[pure/ext] : ∀ {ℓ} {A B C : Poset ℓ} {g : ⟪ B ↗ C ⟫} {f : ⟪ A ↗ B ⟫} → pure ⋅ (g ∘♮ f) ≈♮ pure ⋅ g ∘♮ f
 homomorphic[pure/ext] = ◇ associative[∘♮]
 
 homomorphic[pure] : ∀ {ℓ} {A B C : Poset ℓ} {g : ⟪ B ↗ C ⟫} {f : ⟪ A ↗ B ⟫} {x : ⟪ A ⟫} → pure ⋅ (g ∘♮ f) ⋅ x ≈♮ pure ⋅ g ⋅ (f ⋅ x)
-homomorphic[pure] {g = g} {f} = res[f]⸢≈↗⸣ $ homomorphic[pure/ext] {g = g} {f}
+homomorphic[pure] {g = g} {f} = res[f][↗]⸢≈⸣ $ homomorphic[pure/ext] {g = g} {f}
+
+unit[pure] : ∀ {ℓ} {A : Poset ℓ} → pure ⋅ id♮ {A = A} ≈♮ return♮
+unit[pure] = ext[↗]⸢≈⸣ xRx
 
 syntax Σ℘ X (λ x → P) = ∃℘ x ⋿ X 𝑠𝑡 P
 record Σ℘ {ℓ} {A : Poset ℓ} (X : ⟪ ℘ A ⟫) (P : ⟪ A ⟫ → Set ℓ) : Set ℓ where
@@ -57,7 +61,7 @@ _*♮ {ℓ} {A} {B} f = witness (curry⸢λ⸣ id⸢ω⸣) $ mk[witness] fun ppr
     fun X y = Σ℘ X (λ x → y ⋿ f ⋅ x)
     abstract
       ppr : proper (_⊑♮_ ⇉ _⊒♮_ ⇉ [→]) fun
-      ppr X⊑Y x⊒y (∃℘ z ,, z∈X ,, x∈f[z]) = ∃℘ z ,, res[X]⸢⊑℘⸣ X⊑Y z∈X ,, res[x]⸢⊑℘⸣ {X = f ⋅ z} x⊒y x∈f[z]
+      ppr X⊑Y x⊒y (∃℘ z ,, z∈X ,, x∈f[z]) = ∃℘ z ,, res[X][℘]⸢⊑⸣ X⊑Y z∈X ,, res[x][℘]⸢⊑⸣ {X = f ⋅ z} x⊒y x∈f[z]
 
 [*] : ∀ {ℓ} {A B : Poset ℓ} → ⟪ (A ↗ ℘ B) ↗ (℘ A ↗ ℘ B) ⟫
 [*] {ℓ} {A} {B} = witness (curry⸢λ⸣ id⸢λ⸣) $ mk[witness] fun ppr
@@ -66,32 +70,32 @@ _*♮ {ℓ} {A} {B} f = witness (curry⸢λ⸣ id⸢ω⸣) $ mk[witness] fun ppr
     fun f = f *♮
     abstract
       ppr : proper (_⊑♮_ ⇉ _⊑♮_) fun
-      ppr {f} {g} f⊑g = ext⸢⊑↗⸣ $ ext⸢⊑℘⸣ H
+      ppr {f} {g} f⊑g = ext[↗]⸢⊑⸣ $ ext[℘]⸢⊑⸣ H
         where
           H : ∀ {X y} → ∃℘ x ⋿ X 𝑠𝑡 y ⋿ f ⋅ x → ∃℘ x ⋿ X 𝑠𝑡 y ⋿ g ⋅ x
-          H (∃℘ x ,, x∈X ,, y⋿f[x]) = ∃℘ x ,, x∈X ,, (res[X]⸢⊑℘⸣ (res[f]⸢⊑↗⸣ f⊑g) y⋿f[x])
+          H (∃℘ x ,, x∈X ,, y⋿f[x]) = ∃℘ x ,, x∈X ,, (res[X][℘]⸢⊑⸣ (res[f][↗]⸢⊑⸣ f⊑g) y⋿f[x])
 
 left-unit[*] : ∀ {ℓ} {A : Poset ℓ} {X : ⟪ ℘ A ⟫} → return♮ *♮ ⋅ X ≈♮ X
-left-unit[*] {X = X} = ext⸢≈℘⸣ $ LHS , RHS 
+left-unit[*] {X = X} = ext[℘]⸢≈⸣ ⟨ LHS , RHS ⟩
   where
     LHS : ∀ {y} → y ⋿ return♮ *♮ ⋅ X → y ⋿ X
-    LHS (∃℘ y' ,, y'∈X ,, y∈return[y']) = res[x]⸢⊑℘⸣ {X = X} y∈return[y'] y'∈X
+    LHS (∃℘ y' ,, y'∈X ,, y∈return[y']) = res[x][℘]⸢⊑⸣ {X = X} y∈return[y'] y'∈X
     RHS : ∀ {y} → y ⋿ X → y ⋿ return♮ *♮ ⋅ X
     RHS {y} y∈X = ∃℘ y ,, y∈X ,, xRx
 
 left-unit[*/ext] : ∀ {ℓ} {A : Poset ℓ} → return♮ {A = A} *♮ ≈♮ id♮
-left-unit[*/ext] = ext⸢≈↗⸣ left-unit[*]
+left-unit[*/ext] = ext[↗]⸢≈⸣ left-unit[*]
 
 right-unit[*] : ∀ {ℓ} {A B : Poset ℓ} {f : ⟪ A ↗ ℘ B ⟫} {x : ⟪ A ⟫} → f *♮ ⋅ (return♮ ⋅ x) ≈♮ f ⋅ x
-right-unit[*] {f = f} {x} = ext⸢≈℘⸣ $ LHS , RHS
+right-unit[*] {f = f} {x} = ext[℘]⸢≈⸣ ⟨ LHS , RHS ⟩
   where
     LHS : ∀ {y} → y ⋿ f *♮ ⋅ (return♮ ⋅ x) → y ⋿ f ⋅ x
-    LHS (∃℘ x' ,, x'∈return[x] ,, y∈f[x']) = res[X]⸢⊑℘⸣ (res[x]⸢⊑↗⸣ {f = f} x'∈return[x]) y∈f[x']
+    LHS (∃℘ x' ,, x'∈return[x] ,, y∈f[x']) = res[X][℘]⸢⊑⸣ (res[x][↗]⸢⊑⸣ {f = f} x'∈return[x]) y∈f[x']
     RHS : ∀ {y} → y ⋿ f ⋅ x → y ⋿ f *♮ ⋅ (return♮ ⋅ x)
     RHS {y} y∈f[x] = ∃℘ x ,, xRx ,, y∈f[x]
     
 associative[*] : ∀ {ℓ} {A B C : Poset ℓ} {g : ⟪ B ↗ ℘ C ⟫} {f : ⟪ A ↗ ℘ B ⟫} {X : ⟪ ℘ A ⟫} → (g *♮ ∘♮ f) *♮ ⋅ X ≈♮ g *♮ ⋅ (f *♮ ⋅ X)
-associative[*] {g = g} {f} {X} = ext⸢≈℘⸣ $ LHS , RHS
+associative[*] {g = g} {f} {X} = ext[℘]⸢≈⸣ ⟨ LHS , RHS ⟩
   where
     LHS : ∀ {y} → y ⋿ (g *♮ ∘♮ f) *♮ ⋅ X → y ⋿ g *♮ ⋅ (f *♮ ⋅ X)
     LHS {y} (∃℘ x ,, x∈X ,, (∃℘ y' ,, y'∈f[x] ,, y∈g[y'])) = ∃℘ y' ,, (∃℘ x ,, x∈X ,, y'∈f[x]) ,, y∈g[y']
@@ -99,7 +103,7 @@ associative[*] {g = g} {f} {X} = ext⸢≈℘⸣ $ LHS , RHS
     RHS {y} (∃℘ y' ,, (∃℘ x ,, x∈X ,, y'∈f[x]) ,, y∈g[y']) = ∃℘ x ,, x∈X ,, ∃℘ y' ,, y'∈f[x] ,, y∈g[y']
 
 associative[*/ext] : ∀ {ℓ} {A B C : Poset ℓ} {g : ⟪ B ↗ ℘ C ⟫} {f : ⟪ A ↗ ℘ B ⟫} → (g *♮ ∘♮ f) *♮ ≈♮ g *♮ ∘♮ f *♮
-associative[*/ext] = ext⸢≈↗⸣ associative[*]
+associative[*/ext] = ext[↗]⸢≈⸣ associative[*]
 
 sound[*]⸢⊑⸣ : ∀ {ℓ} {A B : Poset ℓ} {f₁ f₂ : ⟪ A ↗ ℘ B ⟫} → f₁ ⊑♮ f₂ → f₁ *♮ ⊑♮ f₂ *♮
 sound[*]⸢⊑⸣ {f₁ = f₁} {f₂} f₁⊑f₂ = let open ProofMode[⊑] in [proof-mode]
@@ -109,10 +113,10 @@ sound[*]⸢⊑⸣ {f₁ = f₁} {f₂} f₁⊑f₂ = let open ProofMode[⊑] in 
    ∎
 
 sound[*]⸢≈⸣ : ∀ {ℓ} {A B : Poset ℓ} {f₁ f₂ : ⟪ A ↗ ℘ B ⟫} → f₁ ≈♮ f₂ → f₁ *♮ ≈♮ f₂ *♮
-sound[*]⸢≈⸣ f₁≈f₂ = ⋈[] (sound[*]⸢⊑⸣ $ xRx[] f₁≈f₂) (sound[*]⸢⊑⸣ $ xRx[] $ ◇ f₁≈f₂)
+sound[*]⸢≈⸣ f₁≈f₂ = ⋈ᴳ (sound[*]⸢⊑⸣ $ xRxᴳ f₁≈f₂) (sound[*]⸢⊑⸣ $ xRxᴳ $ ◇ f₁≈f₂)
 
 complete[*]⸢⊑⸣ : ∀ {ℓ} {A B : Poset ℓ} {f₁ f₂ : ⟪ A ↗ ℘ B ⟫} → f₁ *♮ ⊑♮ f₂ *♮ → f₁ ⊑♮ f₂ 
-complete[*]⸢⊑⸣ {f₁ = f₁} {f₂} f₁*⊑f₂* = let open ProofMode[⊑] in ext⸢⊑↗⸣ $ λ {x} → [proof-mode]
+complete[*]⸢⊑⸣ {f₁ = f₁} {f₂} f₁*⊑f₂* = let open ProofMode[⊑] in ext[↗]⸢⊑⸣ $ λ {x} → [proof-mode]
   do [[ f₁ ⋅ x ]]
    ‣ ⟅ ◇ right-unit[*] ⟆⸢≈⸣
    ‣ [[ f₁ *♮ ⋅ (return♮ ⋅ x) ]]
@@ -123,7 +127,7 @@ complete[*]⸢⊑⸣ {f₁ = f₁} {f₂} f₁*⊑f₂* = let open ProofMode[⊑
    ∎
 
 complete[*]⸢≈⸣ : ∀ {ℓ} {A B : Poset ℓ} {f₁ f₂ : ⟪ A ↗ ℘ B ⟫} → f₁ *♮ ≈♮ f₂ *♮ → f₁ ≈♮ f₂
-complete[*]⸢≈⸣ f₁*≈f₂* = ⋈[] (complete[*]⸢⊑⸣ $ xRx[] f₁*≈f₂*) (complete[*]⸢⊑⸣ $ xRx[] $ ◇ f₁*≈f₂*)
+complete[*]⸢≈⸣ f₁*≈f₂* = ⋈ᴳ (complete[*]⸢⊑⸣ $ xRxᴳ f₁*≈f₂*) (complete[*]⸢⊑⸣ $ xRxᴳ $ ◇ f₁*≈f₂*)
 
 [⟐] : ∀ {ℓ} {A B C : Poset ℓ} → ⟪ (B ↗ ℘ C) ↗ (A ↗ ℘ B) ↗ (A ↗ ℘ C) ⟫ 
 [⟐] = [∘♮] ∘♮ [*]
@@ -132,10 +136,10 @@ _⟐_ : ∀ {ℓ} {A B C : Poset ℓ} → ⟪ B ↗ ℘ C ⟫ → ⟪ A ↗ ℘ 
 g ⟐ f = g *♮ ∘♮ f
   
 left-unit[⟐] : ∀ {ℓ} {A B : Poset ℓ} {f : ⟪ A ↗ ℘ B ⟫} → return♮ ⟐ f ≈♮ f
-left-unit[⟐] = ext⸢≈↗⸣ $ left-unit[*]
+left-unit[⟐] = ext[↗]⸢≈⸣ $ left-unit[*]
   
 right-unit[⟐] : ∀ {ℓ} {A B : Poset ℓ} {f : ⟪ A ↗ ℘ B ⟫} → f ⟐ return♮ ≈♮ f
-right-unit[⟐] = ext⸢≈↗⸣ right-unit[*]
+right-unit[⟐] = ext[↗]⸢≈⸣ right-unit[*]
 
 right-unit[⟐/pure] : ∀ {ℓ} {A B C : Poset ℓ} {g : ⟪ B ↗ ℘ C ⟫} {f : ⟪ A ↗ B ⟫} → g ⟐ pure ⋅ f ≈♮ g ∘♮ f
 right-unit[⟐/pure] {g = g} {f} = let open ProofMode[≈] in [proof-mode]
@@ -179,4 +183,22 @@ wrap[⟐] {A = A} {B} {C} {D} = witness (curry⸢λ⸣ $ curry⸢λ⸣ $ curry�
     fun h f g = h ⟐ g ⟐ f
     abstract
       ppr : proper (_⊑♮_ ⇉ _⊑♮_ ⇉ _⊑♮_ ⇉ _⊑♮_) fun
-      ppr h₁⊑h₂ f₁⊑f₂ g₁⊑g₂ = ext⸢⊑↗⸣ $ λ {x} → res[fx]⸢⊑↗⸣ (sound[*]⸢⊑⸣ h₁⊑h₂) (res[fx]⸢⊑↗⸣ (sound[*]⸢⊑⸣ g₁⊑g₂) (res[f]⸢⊑↗⸣ f₁⊑f₂))
+      ppr h₁⊑h₂ f₁⊑f₂ g₁⊑g₂ = ext[↗]⸢⊑⸣ $ λ {x} → res[fx][↗]⸢⊑⸣ (sound[*]⸢⊑⸣ h₁⊑h₂) (res[fx][↗]⸢⊑⸣ (sound[*]⸢⊑⸣ g₁⊑g₂) (res[f][↗]⸢⊑⸣ f₁⊑f₂))
+
+module _ {ℓ} {A : Poset ℓ} {B : Poset ℓ} where
+  map℘♮ : ⟪ (A ↗ B) ↗ ℘ A ↗ ℘ B ⟫
+  map℘♮ = [*] ∘♮ pure
+
+module _ {ℓ} {A : Poset ℓ} where
+  return[]/single : ∀ {x : ⟪ A ⟫} → return[]♮ ⋅ (single♮ ⋅ x) ≈♮ return♮ ⋅ x
+  return[]/single {x} = ext[℘]⸢≈⸣ ⟨ LHS , RHS ⟩
+    where
+      LHS : ∀ {y} → y ⋿ return[]♮ ⋅ (single♮ ⋅ x) → y ⋿ return♮ ⋅ x
+      LHS (Zero ⊑ₓ) = ⊑ₓ
+      LHS (Succ ())
+      RHS : ∀ {y} → y ⋿ return♮ ⋅ x → y ⋿ return[]♮ ⋅ (single♮ ⋅ x)
+      RHS ⊑ₓ = Zero ⊑ₓ
+
+module _ {ℓ} {A B : Poset ℓ} where
+  pure[]♮ : ⟪ (A ↗ list♮ B) ↗ (A ↗ ℘ B) ⟫
+  pure[]♮ = [∘♮] ⋅ return[]♮

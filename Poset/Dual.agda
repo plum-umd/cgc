@@ -23,5 +23,5 @@ instance
   Reflexive[dual] = record { xRx = xRx⸢≼⸢dual⸣⸣ }
   Transitive[dual] : ∀ {ℓ} {A : Poset ℓ} → Transitive (_≼⸢dual⸣_ {A = A})
   Transitive[dual] = record { _⊚_ = _⊚⸢≼⸢dual⸣⸣_ }
-  PreOrder[dual] : ∀ {ℓ} {A : Poset ℓ} → PreOrder ℓ (dual A)
-  PreOrder[dual] = record { _≼_ = _≼⸢dual⸣_ }
+  Precision[dual] : ∀ {ℓ} {A : Poset ℓ} → Precision ℓ (dual A)
+  Precision[dual] = mk[Precision] _≼⸢dual⸣_

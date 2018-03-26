@@ -2,7 +2,6 @@ module Poset.Fun where
 
 open import Prelude
 open import Poset.Poset
-open import Data.Witness public
 
 infixr 11 _↗_
 infixl 50 _⋅_
@@ -27,21 +26,21 @@ instance
   Reflexive[↗♭] = record { xRx = xRx⸢≼↗♭⸣ }
   Transitive[↗♭] : ∀ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} → Transitive (_≼⸢↗♭⸣_ {A = A} {B})
   Transitive[↗♭] = record { _⊚_ = _⊚⸢≼↗♭⸣_ }
-  PreOrder[↗♭] : ∀ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} → PreOrder (ℓ₁ ⊔ᴸ ℓ₂) (A ↗♭ B)
-  PreOrder[↗♭] = record { _≼_ = _≼⸢↗♭⸣_ }
+  Precision[↗♭] : ∀ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} → Precision (ℓ₁ ⊔ᴸ ℓ₂) (A ↗♭ B)
+  Precision[↗♭] = mk[Precision] _≼⸢↗♭⸣_
 
 module _
   {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂}
   {f : ⟪ A ⟫ → ⟪ B ⟫} {f-proper : proper (_⊑♮_ ⇉ _⊑♮_) f}
   {g : ⟪ A ⟫ → ⟪ B ⟫} {g-proper : proper (_⊑♮_ ⇉ _⊑♮_) g} where
 
-  intro[⊑↗] : (_⊑♮_ ⇉ _⊑♮_) f g → [λ f ] {f-proper} ≼ [λ g ] {g-proper}
+  intro[⊑↗] : (_⊑♮_ ⇉ _⊑♮_) f g → [λ f ] {f-proper} ⊑ [λ g ] {g-proper}
   intro[⊑↗] f⊑g = ♮⟨ f⊑g ⟩
   
-  elim[⊑↗] : [λ f ] {f-proper} ≼ [λ g ] {g-proper} → (_⊑♮_ ⇉ _⊑♮_) f g
+  elim[⊑↗] : [λ f ] {f-proper} ⊑ [λ g ] {g-proper} → (_⊑♮_ ⇉ _⊑♮_) f g
   elim[⊑↗] ♮⟨ f⊑g ⟩ = f⊑g
 
-[λ♭_] : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {{PO : PreOrder ℓ₁ A}} {B : Poset ℓ₂} (f : A → ⟪ B ⟫) {f-proper : proper (_≼_ ⇉ _⊑♮_) f} → ⇧ A ↗♭ B
+[λ♭_] : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {{_ : Precision ℓ₁ A}} {B : Poset ℓ₂} (f : A → ⟪ B ⟫) {f-proper : proper (_⊑_ ⇉ _⊑♮_) f} → ⇧ A ↗♭ B
 [λ♭ f ] {f-proper} = [λ f ∘ ♭ ] {ppr}
   where
     abstract
@@ -49,14 +48,14 @@ module _
       ppr = f-proper ∘ elim[⊑♭]
 
 module _
-  {ℓ₁ ℓ₂} {A : Set ℓ₁} {{PO : PreOrder ℓ₁ A}} {B : Poset ℓ₂}
-  {f : A → ⟪ B ⟫} {f-proper : proper (_≼_ ⇉ _⊑♮_) f}
-  {g : A → ⟪ B ⟫} {g-proper : proper (_≼_ ⇉ _⊑♮_) g} where
+  {ℓ₁ ℓ₂} {A : Set ℓ₁} {{_ : Precision ℓ₁ A}} {B : Poset ℓ₂}
+  {f : A → ⟪ B ⟫} {f-proper : proper (_⊑_ ⇉ _⊑♮_) f}
+  {g : A → ⟪ B ⟫} {g-proper : proper (_⊑_ ⇉ _⊑♮_) g} where
 
-  intro[⊑↗♭] : (_≼_ ⇉ _⊑♮_) f g → [λ♭ f ] {f-proper} ≼ [λ♭ g ] {g-proper}
+  intro[⊑↗♭] : (_⊑_ ⇉ _⊑♮_) f g → [λ♭ f ] {f-proper} ⊑ [λ♭ g ] {g-proper}
   intro[⊑↗♭] f⊑g = ♮⟨ f⊑g ∘ elim[⊑♭] ⟩
   
-  elim[⊑↗♭] : [λ♭ f ] {f-proper} ≼ [λ♭ g ] {g-proper} → (_≼_ ⇉ _⊑♮_) f g
+  elim[⊑↗♭] : [λ♭ f ] {f-proper} ⊑ [λ♭ g ] {g-proper} → (_⊑_ ⇉ _⊑♮_) f g
   elim[⊑↗♭] ♮⟨ f⊑g ⟩ = f⊑g ∘ intro[⊑♮]
 
 _↗_ : ∀ {ℓ₁ ℓ₂} → Poset ℓ₁ → Poset ℓ₂ → Poset (ℓ₁ ⊔ᴸ ℓ₂)
@@ -66,29 +65,29 @@ _⋅_ : ∀ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} → ⟪ A ↗ 
 _⋅_ (♮⟨ [λ f ] ⟩) = f
 
 module _ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} where
-  res[fx]⸢⊑↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → f ⊑♮ g → x ⊑♮ y → f ⋅ x ⊑♮ g ⋅ y
-  res[fx]⸢⊑↗⸣ {f = ♮⟨ [λ f ] ⟩} {♮⟨ [λ g ] ⟩} {x} {y} f⊑g = elim[⊑↗] $ elim[⊑♭] f⊑g
+  res[fx][↗]⸢⊑⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → f ⊑♮ g → x ⊑♮ y → f ⋅ x ⊑♮ g ⋅ y
+  res[fx][↗]⸢⊑⸣ {f = ♮⟨ [λ f ] ⟩} {♮⟨ [λ g ] ⟩} {x} {y} f⊑g = elim[⊑↗] $ elim[⊑♭] f⊑g
   
-  res[x]⸢⊑↗⸣ : ∀ {f : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → x ⊑♮ y → f ⋅ x ⊑♮ f ⋅ y
-  res[x]⸢⊑↗⸣ {f = f} = res[fx]⸢⊑↗⸣ $ xRx {x = f}
+  res[x][↗]⸢⊑⸣ : ∀ {f : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → x ⊑♮ y → f ⋅ x ⊑♮ f ⋅ y
+  res[x][↗]⸢⊑⸣ {f = f} = res[fx][↗]⸢⊑⸣ $ xRx {x = f}
   
-  res[f]⸢⊑↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x : ⟪ A ⟫} → f ⊑♮ g → f ⋅ x ⊑♮ g ⋅ x 
-  res[f]⸢⊑↗⸣ f⊑g = res[fx]⸢⊑↗⸣ f⊑g xRx
+  res[f][↗]⸢⊑⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x : ⟪ A ⟫} → f ⊑♮ g → f ⋅ x ⊑♮ g ⋅ x 
+  res[f][↗]⸢⊑⸣ f⊑g = res[fx][↗]⸢⊑⸣ f⊑g xRx
   
-  ext⸢⊑↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} → (∀ {x : ⟪ A ⟫} → (f ⋅ x) ⊑♮ (g ⋅ x)) → f ⊑♮ g
-  ext⸢⊑↗⸣ {f = ♮⟨ [λ f ] {f-proper} ⟩} {g = ♮⟨ [λ g ] ⟩} f⊑g = intro[⊑♮] (intro[⊑↗] (λ x⊑y → f⊑g ⊚ f-proper x⊑y))
+  ext[↗]⸢⊑⸣ : ∀ {f g : ⟪ A ↗ B ⟫} → (∀ {x : ⟪ A ⟫} → (f ⋅ x) ⊑♮ (g ⋅ x)) → f ⊑♮ g
+  ext[↗]⸢⊑⸣ {f = ♮⟨ [λ f ] {f-proper} ⟩} {g = ♮⟨ [λ g ] ⟩} f⊑g = intro[⊑♮] (intro[⊑↗] (λ x⊑y → f⊑g ⊚ f-proper x⊑y))
   
-  res[fx]⸢≈↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → f ≈♮ g → x ≈♮ y → f ⋅ x ≈♮ g ⋅ y
-  res[fx]⸢≈↗⸣ f≈g x≈y = ⋈[] (res[fx]⸢⊑↗⸣ (xRx[≈]⸢⊑♮⸣ f≈g) (xRx[] x≈y)) (res[fx]⸢⊑↗⸣ (xRx[≈]⸢⊑♮⸣ $ ◇⸢≈♮⸣ f≈g) (xRx[] $ ◇ x≈y))
+  res[fx][↗]⸢≈⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → f ≈♮ g → x ≈♮ y → f ⋅ x ≈♮ g ⋅ y
+  res[fx][↗]⸢≈⸣ f≈g x≈y = ⋈ᴳ (res[fx][↗]⸢⊑⸣ (xRx[≈]⸢⊑♮⸣ f≈g) (xRxᴳ x≈y)) (res[fx][↗]⸢⊑⸣ (xRx[≈]⸢⊑♮⸣ $ ◇⸢≈♮⸣ f≈g) (xRxᴳ $ ◇ x≈y))
   
-  res[x]⸢≈↗⸣ : ∀ {f : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → x ≈♮ y → f ⋅ x ≈♮ f ⋅ y
-  res[x]⸢≈↗⸣ {f = f} = res[fx]⸢≈↗⸣ $ xRx {x = f}
+  res[x][↗]⸢≈⸣ : ∀ {f : ⟪ A ↗ B ⟫} {x y : ⟪ A ⟫} → x ≈♮ y → f ⋅ x ≈♮ f ⋅ y
+  res[x][↗]⸢≈⸣ {f = f} = res[fx][↗]⸢≈⸣ $ xRx {x = f}
   
-  res[f]⸢≈↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x : ⟪ A ⟫} → f ≈♮ g → f ⋅ x ≈♮ g ⋅ x 
-  res[f]⸢≈↗⸣ {x = x} f⊑g = res[fx]⸢≈↗⸣ f⊑g $ xRx {x = x}
+  res[f][↗]⸢≈⸣ : ∀ {f g : ⟪ A ↗ B ⟫} {x : ⟪ A ⟫} → f ≈♮ g → f ⋅ x ≈♮ g ⋅ x 
+  res[f][↗]⸢≈⸣ {x = x} f⊑g = res[fx][↗]⸢≈⸣ f⊑g $ xRx {x = x}
   
-  ext⸢≈↗⸣ : ∀ {f g : ⟪ A ↗ B ⟫} → (∀ {x : ⟪ A ⟫} → (f ⋅ x) ≈♮ (g ⋅ x)) → f ≈♮ g
-  ext⸢≈↗⸣ f≈g = ⋈[≈]⸢⊑♮⸣ (ext⸢⊑↗⸣ (xRx[] f≈g)) (ext⸢⊑↗⸣ (xRx[] $ ◇ f≈g))
+  ext[↗]⸢≈⸣ : ∀ {f g : ⟪ A ↗ B ⟫} → (∀ {x : ⟪ A ⟫} → (f ⋅ x) ≈♮ (g ⋅ x)) → f ≈♮ g
+  ext[↗]⸢≈⸣ f≈g = ⋈[≈]⸢⊑♮⸣ (ext[↗]⸢⊑⸣ (xRxᴳ f≈g)) (ext[↗]⸢⊑⸣ (xRxᴳ $ ◇ f≈g))
 
 mk[λ]-witness : ∀ {ℓ₁ ℓ₂} {A : Poset ℓ₁} {B : Poset ℓ₂} → ⟪ _⊑♮_ {A = A} ⇉ _⊑♮_ {A = B}⟫ʷ → ⟪ A ↗ B ⟫
 mk[λ]-witness f = ♮ $ [λ witness f ] {ppr}
@@ -116,10 +115,10 @@ curry⸢λ⸣[_] {A = A} {_R₁_} {B} {C} {_R_} {D} g f =
    ⊚[D]ʷ[ _R₁_ ⇉ _R_ , _R₁_ ⇉ _⊑♮_ , _⊑♮_ ⇉ _⊑♮_ ]
    compose[DR₁]ʷ[ _R₁_ , _R_ , _⊑♮_ ] ⋅ʷ f
 
-<♭> : ∀ {ℓ} {A : Set ℓ} {{_ : PreOrder ℓ A}} → ⟪ _⊑♮_ {A = ⇧ A} ⇉ʷ _≼_ {A = A} ⟫ʷ
+<♭> : ∀ {ℓ} {A : Set ℓ} {{_ : Precision ℓ A}} → ⟪ _⊑♮_ {A = ⇧ A} ⇉ʷ _⊑_ {A = A} ⟫ʷ
 <♭> = mk[witness] (♭ ∘ witness) elim[⊑♭]
 
-<♮> : ∀ {ℓ} {A : Set ℓ} {{_ : PreOrder ℓ A}} → ⟪ _≼_ {A = A} ⇉ʷ _⊑♮_ {A = ⇧ A} ⟫ʷ
+<♮> : ∀ {ℓ} {A : Set ℓ} {{_ : Precision ℓ A}} → ⟪ _⊑_ {A = A} ⇉ʷ _⊑♮_ {A = ⇧ A} ⟫ʷ
 <♮> = mk[witness] (♮ ∘ witness) intro[⊑♮]
 
 <id> : ∀ {ℓ} {A : Poset ℓ} → ⟪ _⊑♮_ {A = A} ⇉ʷ _⊑♮_ {A = A} ⟫ʷ
@@ -131,14 +130,14 @@ curry⸢λ⸣ :
   → ⟪ (_⊑♮_ {A = A} ⇉ _R_) ⇉ʷ _⊑♮_ {A = A ↗ C} ⟫ʷ
 curry⸢λ⸣ {A = A} {B} {_R_} {C} g = curry⸢λ⸣[ <id> ] g
 
-id⸢λ♭⸣ : ∀ {ℓ} {A : Set ℓ} {{_ : PreOrder ℓ A}} → ⟪ _≼_ {A = A} ⇉ʷ _⊑♮_ {A = ⇧ A} ⟫ʷ
+id⸢λ♭⸣ : ∀ {ℓ} {A : Set ℓ} {{_ : Precision ℓ A}} → ⟪ _⊑_ {A = A} ⇉ʷ _⊑♮_ {A = ⇧ A} ⟫ʷ
 id⸢λ♭⸣ = <♮>
 
 curry⸢λ♭⸣ :
-  ∀ {ℓ₁ ℓ₂ ℓ₂ʳ} {A : Set ℓ₁} {{_ : PreOrder ℓ₁ A}} {B : Set ℓ₂} {_R_ : relation ℓ₂ʳ B} {C : Poset ℓ₂}
+  ∀ {ℓ₁ ℓ₂ ℓ₂ʳ} {A : Set ℓ₁} {{_ : Precision ℓ₁ A}} {B : Set ℓ₂} {_R_ : relation ℓ₂ʳ B} {C : Poset ℓ₂}
   → ⟪ _R_ ⇉ʷ _⊑♮_ {A = C} ⟫ʷ
-  → ⟪ (_≼_ {A = A} ⇉ _R_) ⇉ʷ _⊑♮_ {A = ⇧ A ↗ C} ⟫ʷ
-curry⸢λ♭⸣ = curry⸢λ⸣[ <♭> ] {{Reflexive[≼]}}
+  → ⟪ (_⊑_ {A = A} ⇉ _R_) ⇉ʷ _⊑♮_ {A = ⇧ A ↗ C} ⟫ʷ
+curry⸢λ♭⸣ = curry⸢λ⸣[ <♭> ] {{Reflexive[⊑]}}
 
 -- curry⸢λ⸣ :
 --   ∀ {ℓ₁ ℓ₂ ℓ₂ʳ ℓ₃} {A : Poset ℓ₁} {B : Set ℓ₂} {_R_ : relation ℓ₂ʳ B} {C : Poset ℓ₃}
@@ -146,21 +145,21 @@ curry⸢λ♭⸣ = curry⸢λ⸣[ <♭> ] {{Reflexive[≼]}}
 --   → (_⊑_ {A = A} ⇉ _R_) ↗ʷ _⊑_ {A = A ↗ C}
 -- curry⸢λ⸣ {A = A} {B} {_R_} {C} g = mk[λ]-W[ A , C ] ⊚[D]ʷ[ _⊑_ ⇉ _R_ , _⊑_ ⇉ _⊑_ , _⊑_ ] compose[DR₁]ʷ[ _⊑_ , _R_ , _⊑_ ] ⋅ʷ g
 -- 
--- mk[λ♮]-witness : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {{PO : PreOrder ℓ₁ A}} {B : Poset ℓ₂} → ⟪ _≼_ {A = A} ⇉ _⊑_  {A = B}⟫ʷ → ⟪ ⇧ A ↗ B ⟫
+-- mk[λ♮]-witness : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {{PO : Precision ℓ₁ A}} {B : Poset ℓ₂} → ⟪ _⊑_ {A = A} ⇉ _⊑_  {A = B}⟫ʷ → ⟪ ⇧ A ↗ B ⟫
 -- mk[λ♮]-witness f = ♮ $ [λ♮ witness f ] {ppr}
 --   where
 --     abstract
---       ppr : proper (_≼_ ⇉ _⊑_) (witness f)
+--       ppr : proper (_⊑_ ⇉ _⊑_) (witness f)
 --       ppr = proper[witness] f
 -- 
--- mk[λ♮]-W[_,_] : ∀ {ℓ₁ ℓ₂} (A : Set ℓ₁) {{PO : PreOrder ℓ₁ A}} (B : Poset ℓ₂) → ⟪ (_≼_ {A = A} ⇉ _⊑_ {A = B}) ⇉ʷ _⊑_ {A = ⇧ A ↗ B}⟫ʷ
+-- mk[λ♮]-W[_,_] : ∀ {ℓ₁ ℓ₂} (A : Set ℓ₁) {{PO : Precision ℓ₁ A}} (B : Poset ℓ₂) → ⟪ (_⊑_ {A = A} ⇉ _⊑_ {A = B}) ⇉ʷ _⊑_ {A = ⇧ A ↗ B}⟫ʷ
 -- mk[λ♮]-W[ A , B ] = mk[witness] mk[λ♮]-witness (intro[⊑♮] ∘ intro[⊑]⸢↗♮⸣)
 -- 
--- id⸢λ♮⸣ : ∀ {ℓ} {A : Set ℓ} {{PO : PreOrder ℓ A}} → ⟪ _≼_ {A = A} ⇉ʷ _⊑_ {A = ⇧ A} ⟫ʷ
+-- id⸢λ♮⸣ : ∀ {ℓ} {A : Set ℓ} {{PO : Precision ℓ A}} → ⟪ _⊑_ {A = A} ⇉ʷ _⊑_ {A = ⇧ A} ⟫ʷ
 -- id⸢λ♮⸣ = mk[witness] (♮ ∘ witness) intro[⊑♮]
 -- 
 -- curry⸢λ♮⸣ :
---   ∀ {ℓ₁ ℓ₂ ℓ₂ʳ ℓ₃} {A : Set ℓ₁} {{PO : PreOrder ℓ₁ A}} {{REX : Reflexive (_≼_ {A = A})}} {B : Set ℓ₂} {_R_ : relation ℓ₂ʳ B} {C : Poset ℓ₃}
+--   ∀ {ℓ₁ ℓ₂ ℓ₂ʳ ℓ₃} {A : Set ℓ₁} {{PO : Precision ℓ₁ A}} {{REX : Reflexive (_⊑_ {A = A})}} {B : Set ℓ₂} {_R_ : relation ℓ₂ʳ B} {C : Poset ℓ₃}
 --   → _R_ ↗ʷ _⊑_ {A = C}
---   → (_≼_ {A = A} ⇉ _R_) ↗ʷ _⊑_ {A = ⇧ A ↗ C}
--- curry⸢λ♮⸣ {A = A} {B = B} {_R_} {C} g = mk[λ♮]-W[ A , C ] ⊚[D]ʷ[ _≼_ ⇉ _R_ , _≼_ ⇉ _⊑_ , _⊑_ ] compose[DR₁]ʷ[ _≼_ , _R_ , _⊑_ {A = C} ] ⋅ʷ g
+--   → (_⊑_ {A = A} ⇉ _R_) ↗ʷ _⊑_ {A = ⇧ A ↗ C}
+-- curry⸢λ♮⸣ {A = A} {B = B} {_R_} {C} g = mk[λ♮]-W[ A , C ] ⊚[D]ʷ[ _⊑_ ⇉ _R_ , _⊑_ ⇉ _⊑_ , _⊑_ ] compose[DR₁]ʷ[ _⊑_ , _R_ , _⊑_ {A = C} ] ⋅ʷ g

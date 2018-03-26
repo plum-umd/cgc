@@ -4,33 +4,21 @@ open import Agda.Primitive public
   using (Level)
   renaming (lzero to 0ᴸ ; lsuc to ↑ᴸ ; _⊔_ to _⊔ᴸ_)
 
-
 infixr 0 _$$_ do_
-
 infixr 1 _$_ if_then_else_ case_𝑜𝑓_
-
-infixr 2 ∃_,,_
-
-infixr 3 _,_
-
 syntax the A x = x 𝑎𝑡 A
 infixl 4 the _𝑜𝑛_
-
-syntax ∃𝑠𝑡 (λ x → e) = ∃ x 𝑠𝑡 e
-syntax ∃𝑠𝑡⦂ A (λ x → e) = ∃ x ⦂ A 𝑠𝑡 e
 infixr 10 ∃𝑠𝑡
 infixr 10 ∃𝑠𝑡⦂
-
+infixr 10 ∃𝑠𝑡ᴵ
+infixr 10 ∃𝑠𝑡⦂ᴵ
 infixr 11 _↔_
-
+infixr 11 _⇉_
 infixr 12 _∨_
-
 infixr 13 _∧_
-
-infix 14 _≡_ _≢_
-
+infix 14 _≡_
+infix 14 _≢_
 infixr 30 _⊚⸢≡⸣_ _∘_ _∘∘_
-
 infixr 40 _∷_
 
 -----------------------
@@ -43,21 +31,47 @@ the A x = x
 begin_end : ∀ {ℓ} {A : Set ℓ} → A → A
 begin_end x = x
 
+------------------------------------
+-- Predicate and Relation Helpers --
+------------------------------------
+
+predicate : ∀ {ℓ} ℓ' → Set ℓ → Set (↑ᴸ ℓ' ⊔ᴸ ℓ)
+predicate ℓ' A = A → Set ℓ'
+
+relation : ∀ {ℓ} ℓ' → Set ℓ → Set (↑ᴸ ℓ' ⊔ᴸ ℓ)
+relation ℓ' A = A → A → Set ℓ'
+
+proper : ∀ {ℓ ℓ'} {A : Set ℓ} (_R_ : relation ℓ' A) → A → Set ℓ'
+proper _R_ x = x R x
+
+_⇉_ : ∀ {ℓ₁ ℓ₁' ℓ₂ ℓ₂'} {A : Set ℓ₁} {B : Set ℓ₂} (_R₁_ : relation ℓ₁' A) (_R₂_ : relation ℓ₂' B) → relation (ℓ₁ ⊔ᴸ ℓ₁' ⊔ᴸ ℓ₂') (A → B)
+(_R₁_ ⇉ _R₂_) f g = ∀ {x y} → x R₁ y → f x R₂ g y
+
 ----------
 -- Bool --
 ----------
 
 data 𝔹 : Set where
-  True : 𝔹
   False : 𝔹
+  True : 𝔹
 
 {-# BUILTIN BOOL  𝔹 #-}
-{-# BUILTIN TRUE  True #-}
 {-# BUILTIN FALSE False #-}
+{-# BUILTIN TRUE  True #-}
 
 if_then_else_ : ∀ {ℓ} {A : Set ℓ} → 𝔹 → A → A → A
 if True then tb else fb = tb
 if False then tb else fb = fb
+
+_⨹_ : 𝔹 → 𝔹 → 𝔹
+False ⨹ b = b
+b ⨹ False = b
+True ⨹ True = True
+
+_⨻_ : 𝔹 → 𝔹 → 𝔹
+True ⨻ b = b
+b ⨻ True = b
+False ⨻ False = False
 
 -------------
 -- Natural --
@@ -87,8 +101,11 @@ data list {ℓ} (A : Set ℓ) : Set ℓ where
 
 data void : Set where
 
-not : ∀ {ℓ} → Set ℓ → Set ℓ
-not A = A → void
+¬ : ∀ {ℓ} → Set ℓ → Set ℓ
+¬ A = A → void
+
+¬[_] : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} → (A → B → Set ℓ₃) → A → B → Set ℓ₃
+¬[ _R_ ] x y = ¬ (x R y)
 
 exfalso : ∀ {ℓ} {A : Set ℓ} → void → A
 exfalso ()
@@ -108,6 +125,13 @@ data option {ℓ} (A : Set ℓ) : Set ℓ where
   None : option A
   Some : A → option A
 
+elim-option : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → B → (A → B) → option A → B
+elim-option x _ None = x
+elim-option _ f (Some x) = f x
+
+default : ∀ {ℓ} {A : Set ℓ} → A → option A → A
+default x = elim-option x (λ x → x)
+
 ---------
 -- Sum --
 ---------
@@ -121,14 +145,14 @@ data _∨_ {ℓ₁ ℓ₂} (A : Set ℓ₁) (B : Set ℓ₂) : Set (ℓ₁ ⊔�
 -------------
 
 record _∧_ {ℓ₁ ℓ₂} (A : Set ℓ₁) (B : Set ℓ₂) : Set (ℓ₁ ⊔ᴸ ℓ₂) where
-  constructor _,_
+  constructor ⟨_,_⟩
   field
     π₁ : A
     π₂ : B
 open _∧_ public
 
 swap : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} {B : Set ℓ₂} → A ∧ B → B ∧ A
-swap (x , y) = (y , x)
+swap ⟨ x , y ⟩ = ⟨ y , x ⟩
   
 -----------------
 -- Implication --
@@ -144,28 +168,44 @@ A ↔ B = (A → B) ∧ (B → A)
 -- Dependent Sum -- 
 -------------------
 
+syntax ∃𝑠𝑡 (λ x → e) = ∃ x 𝑠𝑡 e
 record ∃𝑠𝑡 {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : ∀ (x : A) → Set ℓ₂) : Set (ℓ₁ ⊔ᴸ ℓ₂) where
-  constructor ∃_,,_
+  constructor ⟨∃_,_⟩
   field
     dπ₁ : A
     dπ₂ : B dπ₁
 open ∃𝑠𝑡 public
 
+syntax ∃𝑠𝑡⦂ A (λ x → e) = ∃ x ⦂ A 𝑠𝑡 e
 ∃𝑠𝑡⦂ : ∀ {ℓ₁ ℓ₂} (A : Set ℓ₁) (B : ∀ (x : A) → Set ℓ₂) → Set (ℓ₁ ⊔ᴸ ℓ₂)
 ∃𝑠𝑡⦂ A B = ∃ x 𝑠𝑡 B x
+
+syntax ∃𝑠𝑡ᴵ (λ x → e) = ∃ᴵ x 𝑠𝑡 e
+record ∃𝑠𝑡ᴵ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : ∀ (x : A) → Set ℓ₂) : Set (ℓ₁ ⊔ᴸ ℓ₂) where
+  constructor ⟨∃_,_⟩
+  field
+    dπᴵ₁ : A
+    .dπᴵ₂ : B dπᴵ₁
+open ∃𝑠𝑡 public
+
+syntax ∃𝑠𝑡⦂ᴵ A (λ x → e) = ∃ᴵ x ⦂ A 𝑠𝑡 e
+∃𝑠𝑡⦂ᴵ : ∀ {ℓ₁ ℓ₂} (A : Set ℓ₁) (B : ∀ (x : A) → Set ℓ₂) → Set (ℓ₁ ⊔ᴸ ℓ₂)
+∃𝑠𝑡⦂ᴵ A B = ∃ x 𝑠𝑡 B x
 
 --------------
 -- Equality --
 --------------
 
-data _≡_ {ℓ} {A : Set ℓ} (x : A) : A → Set ℓ where
+data _≡_ {ℓ} {A : Set ℓ} (x : A) : predicate ℓ A where
   ↯ : x ≡ x
 
-_≢_ : ∀ {ℓ} {A : Set ℓ} → A → A → Set ℓ
-x ≢ y = not (x ≡ y)
-
 {-# BUILTIN EQUALITY _≡_ #-}
-{-# BUILTIN REFL ↯ #-}
+
+≡[_] : ∀ {ℓ} (A : Set ℓ) → relation ℓ A
+≡[ A ] = _≡_ {A = A}
+
+_≢_ : ∀ {ℓ} {A : Set ℓ} → relation ℓ A
+x ≢ y = ¬ (x ≡ y)
 
 subst[_] : ∀ {ℓ₁ ℓ₂} {A : Set ℓ₁} (B : A → Set ℓ₂) {x₁ x₂ : A} → x₁ ≡ x₂ → B x₂ → B x₁
 subst[ B ] ↯ x = x
@@ -249,10 +289,10 @@ _𝑜𝑛_ : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : S
 (r 𝑜𝑛 f) x y = r (f x) (f y)
 
 curry : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} → (A ∧ B → C) → (A → B → C)
-curry f x y = f (x , y)
+curry f x y = f ⟨ x , y ⟩
 
 uncurry : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} → (A → B → C) → (A ∧ B → C)
-uncurry f (x , y) = f x y
+uncurry f ⟨ x , y ⟩ = f x y
 
 flip : ∀ {ℓ₁ ℓ₂ ℓ₃} {A : Set ℓ₁} {B : Set ℓ₂} {C : Set ℓ₃} → (A → B → C) → (B → A → C)
 flip f y x = f x y

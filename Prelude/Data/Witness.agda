@@ -1,6 +1,7 @@
-module Data.Witness where
+module Prelude.Data.Witness where
 
-open import Prelude
+open import Prelude.Core
+open import Prelude.Classes
 
 infixr 11 _⇉ʷ_
 infixr 30 ⊚[D]ʷ

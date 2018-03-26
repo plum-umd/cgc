@@ -7,16 +7,23 @@ Mechanized Metatheory” by Darais and Van Horn.
 - Poset.agda:
   - Develops posets, monotonic functions, monotonic powersets, and a
     calculational “proof mode”
-- POSet/GaloisConnection.agda:
+- Poset/GaloisConnection.agda:
   - Develops classical, Kleisli and constructive Galois connections, and their
     metatheory properties like soundness and completeness.
 - CDGAI.agda:
   - Develops Cousot's “The Calculational Design of a Generic Abstract
     Interpreter” for arithmetic expressions.
-  - CDGAI/ASyntax.agda       -- Arithmetic Syntax
-  - CDGAI/ASemantics.agda    -- Arithmetic Semantics
-  - CDGAI/AEnvAbstract.agda  -- Abstraction for environments
-  - CDGAI/AExpAbstract.agda  -- The calculated generic arithmetic abstract interpreter
+  - CDGAI/EnvAbstraction.agda     -- Abstraction for environments
+  - CDGAI/ZAbstraction.agda       -- Abstraction for integers
+  - CDGAI/ASyntax.agda            -- Arithmetic Syntax
+  - CDGAI/ASemantics.agda         -- Arithmetic Semantics
+  - CDGAI/AExpAbstract.agda       -- The calculated generic arithmetic abstract interpreter
+  - CDGAI/BSyntax.agda            -- Comparison Syntax
+  - CDGAI/BSemantics.agda         -- Comparison Semantics
+  - CDGAI/BSemanticsAbstract.agda -- The calculated generic comparison abstract interpreter
+  - CDGAI/BSyntax.agda            -- Command Syntax
+  - CDGAI/BSemantics.agda         -- Command Semantics
+  - CDGAI/BSemanticsAbstract.agda -- The calculated generic command abstract interpreter
 - AGT.agda:
   - Develops the simply typed metatheory from Garcia, Clark and Tanter's
     “Abstracting Gradual Typing”.
@@ -29,4 +36,4 @@ development run:
 
     make
 
-We are using the latest version of Agda: 2.4.2.5.
+We are using Agda version 2.5.3
